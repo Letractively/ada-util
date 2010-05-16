@@ -2,8 +2,13 @@
 
 = Introduction =
 
-The 
+Performance measurements is often made using profiling tools such as GNU gprof or others.
+This profiling is however not always appropriate for production or release delivery.
+The mechanism presented here is a lightweight performance measurement that can be
+used in production environments.
 
+The Ada package {{Util.Measures}} defines the types and operations to put in place
+performance measurements 
 
 = Create the measure set =
 
