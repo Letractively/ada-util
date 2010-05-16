@@ -7,15 +7,16 @@ This profiling is however not always appropriate for production or release deliv
 The mechanism presented here is a lightweight performance measurement that can be
 used in production environments.
 
-The Ada package {{Util.Measures}} defines the types and operations to put in place
-performance measurements 
+The Ada package `Util.Measures` defines the types and operations to put in place
+performance measurements.
 
 = Create the measure set =
 
 Measures are collected in a *!Measure_Set*.  Each measure has a name, a counter and
-a sum of time spent for all the measure.
+a sum of time spent for all the measure.  The measure set should be declared as some
+global variable.  It can be associated with a per-thread data (or task attribute).
 
-To declare the measure set, you may use:
+To declare the measure set, use:
 {{{
 with Util.Measures;
 
@@ -24,24 +25,27 @@ with Util.Measures;
 
 = Measure the implementation =
 
-A measure is made by creating a variable of type *!Stamp*.  The declaration of
-this variabe marks the begining of the measure.  The measure ends at the
-next call to *Report* 
+A measure is made by creating a variable of type *Stamp*.  The declaration of
+this variable marks the begining of the measure.  The measure ends at the
+next call to the *Report* procedure.
 
 {{{
 with Util.Measures;
 ...
    declare
-      S : Util.Measures.Stamp;
+      Start : Util.Measures.Stamp;
    begin
       ...
-      Util.Measures.Report (Perf, S, "Measure for a block");
+      Util.Measures.Report (Perf, Start, "Measure for a block");
    end;
 }}}
 
-When `Report` is called, the time that ellapsed between the creation of
-the `Stamp` variable and the procedure call is computed.  This time is
-then associated with the measure title.
+When the `Report` procedure is called, the time that elapsed between the creation of
+the `Start` variable and the procedure call is computed.  This time is
+then associated with the measure title and the associated counter is incremented.
+
+If the block code is executed several times, the measure set will report
+the number of times it was executed.
 
 = Reporting results =
 
@@ -52,5 +56,7 @@ an output stream.  When saving the measures, the measure set is cleared.
    Util.Measures.Write (Perf, "Title of measures",
                         Ada.Text_IO.Standard_Output);
 }}}
+
+= Source =
 
 http://code.google.com/p/ada-util/source/browse/trunk/samples/measures.adb
