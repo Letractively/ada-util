@@ -2,7 +2,7 @@
 
 = Introduction =
 
-Add your content here.
+The 
 
 
 = Create the measure set =
@@ -10,6 +10,7 @@ Add your content here.
 Measures are collected in a *Measure_Set*.  Each measure has a name, a counter and
 a sum of time spent for all the measure.
 
+To declare the measure set, you may use:
 {{{
 with Util.Measures;
 
@@ -33,9 +34,14 @@ with Util.Measures;
    end;
 }}}
 
+When `Report` is called, the time that ellapsed between the creation of
+the `Stamp` variable and the procedure call is computed.  This time is
+then associated with the measure title.
+
 = Reporting results =
 
-
+After measures are collected, the results can be saved in a file or in
+an output stream.  When saving the measures, the measure set is cleared.
 
 {{{
    Util.Measures.Write (Perf, "Title of measures",
