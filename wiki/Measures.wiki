@@ -7,7 +7,7 @@ The
 
 = Create the measure set =
 
-Measures are collected in a *Measure_Set*.  Each measure has a name, a counter and
+Measures are collected in a *!Measure_Set*.  Each measure has a name, a counter and
 a sum of time spent for all the measure.
 
 To declare the measure set, you may use:
@@ -19,7 +19,7 @@ with Util.Measures;
 
 = Measure the implementation =
 
-A measure is made by creating a variable of type *Stamp*.  The declaration of
+A measure is made by creating a variable of type *!Stamp*.  The declaration of
 this variabe marks the begining of the measure.  The measure ends at the
 next call to *Report* 
 
@@ -47,3 +47,5 @@ an output stream.  When saving the measures, the measure set is cleared.
    Util.Measures.Write (Perf, "Title of measures",
                         Ada.Text_IO.Standard_Output);
 }}}
+
+http://code.google.com/p/ada-util/source/browse/trunk/samples/measures.adb
