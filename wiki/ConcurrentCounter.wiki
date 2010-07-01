@@ -35,11 +35,11 @@ end record;
 
 === Adjust ===
 
-The 'Adjust' procedure is called immediately after an assignment.
+The `Adjust` procedure is called immediately after an assignment.
 The reference counter has to be updated and is incremented.  The 'Increment'
 procedure guarantees that the increment is atomic even on a multi-processor
-environment (The naive 'Counter := Counter + 1' implementation does not guarantee
-that).
+environment (The naive `Counter := Counter + 1` implementation does not guarantee
+anything).
 
 {{{
 procedure Adjust   (Object : in out Expression) is
@@ -50,7 +50,12 @@ begin
 end Adjust;
 }}}
 
+
 === Finalize ===
+
+The `Finalize` procedure is called before the object is finalized.
+The reference counter must be decremented and the object can be released when
+the counter reaches 0.
 
 {{{
 procedure Finalize (Object : in out Expression) is
