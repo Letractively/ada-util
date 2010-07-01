@@ -1,0 +1,60 @@
+#summary Concurrent Counter
+
+The *Counters* package defines the *Counter* type which provides
+atomic increment and decrement operations.  It is intended to be used to
+implement reference counting in a multi-threaded environment.
+
+== Reference Counting ==
+
+The *Counter* type can be used for the implementation of object reference
+counting.
+
+=== Type Declarations ===
+Lets define a type for which we want to track the references.  The record
+type could hold the reference counter:
+
+{{{
+type Node is limited record
+   Ref_Counter : Util.Concurrent.Counters.Counter;
+   ...
+end record;
+type Node_Access is access all Node;
+}}}
+
+Now, lets define the type that will hold the access to our object instance.
+The goal is to track the references of our instance in order to free it
+when there is no reference to it.  For this we use the Ada Finalization
+package.
+
+{{{
+type Expression is new Ada.Finalization.Controlled with record
+   Node  : Node_Access := null;
+   ...
+end record;
+}}}
+
+=== Adjust ===
+
+{{{
+procedure Adjust   (Object : in out Expression) is
+begin
+   if Object.Node /= null then
+      Util.Concurrent.Counters.Increment (Object.Node.Ref_Counter);
+   end if;
+end Adjust;
+}}}
+
+=== Finalize ===
+
+{{{
+procedure Finalize (Object : in out Expression) is
+   Is_Zero : Boolean;
+begin
+   if Object.Node /= null then
+      Counters.Decrement (Object.Node.Ref_Counter, Is_Zero);
+      if Is_Zero then
+         Delete (Object.Node);
+      end if;
+   end if;
+end Finalize;
+}}}
