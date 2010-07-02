@@ -110,10 +110,3 @@ begin
    end if;
 end Finalize;
 }}}
-
-
-procedure Eval (Expr : in Expression) is
-   E : Expression := Expr;
-begin
-   ...
-end Eval;
