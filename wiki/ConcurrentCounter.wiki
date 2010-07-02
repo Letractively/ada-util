@@ -33,7 +33,16 @@ Still, this is not correct in multi-processor environments.  Since each processo
 have their own cache, a concurrent access to the same memory location will result
 to unpredictable results.  To avoid this, it is necessary to use special instructions
 that will force the memory location to be synchronized.  On x86, this is achieved
-by the `lock` instruction.
+by the `lock` instruction.  The following is guaranteed to be atomic on multi-processors:
+
+{{{
+  lock
+  incl %(eax)
+}}
+
+For Sparc, Mips and other processors, the implementation requires to loop until
+either a lock is get (Spinlock) or it is guaranteed that no other processor has
+modified the counter at the same time.
 
 
 == Reference Counting ==
