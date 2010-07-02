@@ -38,7 +38,7 @@ by the `lock` instruction.  The following is guaranteed to be atomic on multi-pr
 {{{
   lock
   incl %(eax)
-}}
+}}}
 
 For Sparc, Mips and other processors, the implementation requires to loop until
 either a lock is get (Spinlock) or it is guaranteed that no other processor has
