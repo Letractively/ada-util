@@ -12,7 +12,7 @@ the following Ada statement is not thread safe because it is not atomic.
   Counter := Counter + 1;
 }}}
 
-The language (and the compiler) cannot guarantee that such operation can be atomic.
+The language (and the compiler) cannot guarantee that such operation be atomic.
 An instruction can be generated to read the counter, another one to increment and
 a third one to save the value.  For example, on a Sparc, the following could
 be generated:
