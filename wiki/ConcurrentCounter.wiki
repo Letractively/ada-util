@@ -123,6 +123,8 @@ end Finalize;
 The x86 based implementation uses the `lock` instruction.  The `Increment`
 and `Decrement` operations can be inlined.
 
+[http://code.google.com/p/ada-util/source/browse/trunk/src/asm-x86/util-concurrent-counters.ads Util.Concurrent.Counters]
+
 === Default ==
 
 The default implementation uses an Ada protected type to guarantee the
@@ -141,3 +143,5 @@ type Counter is limited record
   Value : Cnt;
 end record;
 }}}
+
+[http://code.google.com/p/ada-util/source/browse/trunk/src/asm-none/util-concurrent-counters.ads Util.Concurrent.Counters]
