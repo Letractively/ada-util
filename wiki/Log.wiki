@@ -1,34 +1,53 @@
 #summary Log Library
 
-
+The log library is heavily inspired from the [http://logging.apache.org/log4j/index.html Apache Log4j] library.  However it is intended to provide a small subset of logging features that Log4j implements, be flexible, extensible, small and efficient.
 
 == Logger Declaration ==
 
 The `Logger` 
 
-Declare a constant `Logger` variable that will be used to produce the log messages:
+Declare a constant `Logger` variable that will be used to produce the log messages.
+A good practice is to declare the `Log` constant in the package body.
 
 {{{
 with Util.Log.Loggers;
-use Util.Log;
-...
+package body X is
+   use Util.Log;
+
    Log : constant Loggers.Logger := Loggers.Create ("EL.Expression");
+   ...
+end X;
 }}}
 
-The `Logger` gets the log configuration associated with the log name (`EL.Expression`
-in the example).  This configuration defines the log level and the appenders that
+The `Loggers.Create` function configures the logger with the log name (`EL.Expression`
+in the example).  The configuration defines the log level and the appenders that
 will receive the message.
 
 == Log Messages ==
 
-The `Logger` provides several procedures to write a message: `Print`, `Debug`,
+The `Logger` type provides several procedures to write a message: `Print`, `Debug`,
 `Info`, `Warn` and `Error`.  The message can have up to 3 parameters represented
 by `{0}`, `{1}` and `{2}`.
 
+The following call:
 {{{
-   Log.info ("Evaluating expression: {0}", Expr);
+   Log.info ("Evaluating expression: {0}", "1+2");
 }}}
 
+will produce an information message.  With the default configuration, the output
+will look like:
+
 {{{
-   Log.error ("Invalid expression: '{0}': {1}", Expr, Reason);
+[2010-07-03 15:31:21] INFO  - EL.Expression - Evaluating expression: 1+2
+}}}
+
+The following call:
+{{{
+   Log.error ("Invalid expression: '{0}': {1}", "23+", "Missing operand");
+}}}
+will produce an error message.  The output will look like:
+
+
+{{{
+[2010-07-03 15:31:21] ERROR - EL.Expression - Invalid expression: '23+': Missing operand
 }}}
