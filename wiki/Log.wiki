@@ -51,3 +51,31 @@ will produce an error message.  The output will look like:
 {{{
 [2010-07-03 15:31:21] ERROR - EL.Expression - Invalid expression: '23+': Missing operand
 }}}
+
+
+== Log Configuration ==
+
+The log configuration uses property files close to the [http://logging.apache.org/log4j/index.html Apache Log4j] configuration.
+
+A file appender is declared using several properties.
+
+{{{
+log4j.appender.result=File
+log4j.appender.result.File=result-output.txt
+}}}
+
+This definition defines an appender named `result` that will write the
+message in the file named `result-output.txt`.
+
+The loggers are configured using similar properties that specify the log level
+and the optional appender.
+The logger `EL.Expression` is configured using the following file:
+
+{{{
+log4j.logger.EL=INFO,result
+log4j.logger.EL.Expression=DEBUG
+}}}
+
+This configuration defines that the `EL` loggers and its descendant will
+log by default the `INFO` log level and use the `result` appender.
+The `EL.Expression` logger overrides the log level and will log the `DEBUG` level.
