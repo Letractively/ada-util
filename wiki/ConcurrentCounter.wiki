@@ -55,8 +55,11 @@ Lets define a type for which we want to track the references.  The record
 type could hold the reference counter:
 
 {{{
+with Util.Concurrent.Counters;
+use Util.Concurrent;
+...
 type Node is limited record
-   Ref_Counter : Util.Concurrent.Counters.Counter;
+   Ref_Counter : Counters.Counter;
    ...
 end record;
 type Node_Access is access all Node;
@@ -83,10 +86,11 @@ environment (The naive `Counter := Counter + 1` implementation does not guarante
 anything).
 
 {{{
-procedure Adjust   (Object : in out Expression) is
+overriding
+procedure Adjust (Object : in out Expression) is
 begin
    if Object.Node /= null then
-      Util.Concurrent.Counters.Increment (Object.Node.Ref_Counter);
+      Counters.Increment (Object.Node.Ref_Counter);
    end if;
 end Adjust;
 }}}
@@ -99,6 +103,7 @@ The reference counter must be decremented and the object can be released when
 the counter reaches 0.
 
 {{{
+overriding
 procedure Finalize (Object : in out Expression) is
    Is_Zero : Boolean;
 begin
@@ -109,4 +114,30 @@ begin
       end if;
    end if;
 end Finalize;
+}}}
+
+== Implementation ==
+
+=== x86 ===
+
+The x86 based implementation uses the `lock` instruction.  The `Increment`
+and `Decrement` operations can be inlined.
+
+=== Default ==
+
+The default implementation uses an Ada protected type to guarantee the
+atomicity.
+
+{{{
+protected type Cnt is
+  procedure Increment;
+  procedure Decrement (Is_Zero : out Boolean);
+  function Get return Natural;
+private
+  N : Integer := 0;
+end Cnt;
+
+type Counter is limited record
+  Value : Cnt;
+end record;
 }}}
