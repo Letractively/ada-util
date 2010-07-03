@@ -1,0 +1,34 @@
+#summary Log Library
+
+
+
+== Logger Declaration ==
+
+The `Logger` 
+
+Declare a constant `Logger` variable that will be used to produce the log messages:
+
+{{{
+with Util.Log.Loggers;
+use Util.Log;
+...
+   Log : constant Loggers.Logger := Loggers.Create ("EL.Expression");
+}}}
+
+The `Logger` gets the log configuration associated with the log name (`EL.Expression`
+in the example).  This configuration defines the log level and the appenders that
+will receive the message.
+
+== Log Messages ==
+
+The `Logger` provides several procedures to write a message: `Print`, `Debug`,
+`Info`, `Warn` and `Error`.  The message can have up to 3 parameters represented
+by `{0}`, `{1}` and `{2}`.
+
+{{{
+   Log.info ("Evaluating expression: {0}", Expr);
+}}}
+
+{{{
+   Log.error ("Invalid expression: '{0}': {1}", Expr, Reason);
+}}}
