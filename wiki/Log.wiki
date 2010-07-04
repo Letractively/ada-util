@@ -79,3 +79,12 @@ log4j.logger.EL.Expression=DEBUG
 This configuration defines that the `EL` loggers and its descendant will
 log by default the `INFO` log level and use the `result` appender.
 The `EL.Expression` logger overrides the log level and will log the `DEBUG` level.
+
+
+=== Source ===
+
+  * [http://code.google.com/p/ada-util/source/browse/trunk/samples/log.adb Log Example]
+  * [http://code.google.com/p/ada-util/source/browse/trunk/samples/log4j.properties Log4j.properties]
+  * [http://code.google.com/p/ada-util/source/browse/trunk/src/util-log.ads Util.Log]
+  * [http://code.google.com/p/ada-util/source/browse/trunk/src/util-log-loggers.ads Util.Log.Loggers]
+  * [http://code.google.com/p/ada-util/source/browse/trunk/src/util-log-appenders.ads Util.Log.Appenders]
