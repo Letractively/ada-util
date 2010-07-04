@@ -55,3 +55,18 @@ with Util.Properties.Basic;
   ...
    Count : Integer := Integer_Property.Get (Properties, "test.count", 23);
 }}}
+
+=== Setting a property ===
+
+The property is created or updated by using the `Set` procedure.
+
+{{{
+   Properties.Set ("test.repeat", "23");
+}}}
+
+=== Source ===
+
+  * [http://code.google.com/p/ada-util/source/browse/trunk/src/util-properties.ads Util.Properties]
+  * [http://code.google.com/p/ada-util/source/browse/trunk/src/util-properties-discrete.ads Util.Properties.Discrete]
+  * [http://code.google.com/p/ada-util/source/browse/trunk/src/util-properties-basic.ads Util.Properties.Basic]
+  * [http://code.google.com/p/ada-util/source/browse/trunk/samples/properties.adb Properties example]
