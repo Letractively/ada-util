@@ -4,7 +4,7 @@ The log library is heavily inspired from the [http://logging.apache.org/log4j/in
 
 == Logger Declaration ==
 
-The `Logger` 
+
 
 Declare a constant `Logger` variable that will be used to produce the log messages.
 A good practice is to declare the `Log` constant in the package body.
