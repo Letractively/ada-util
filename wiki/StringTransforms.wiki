@@ -40,3 +40,8 @@ are prefixed by \.
 {{{
   Result : constant String := Util.Strings.Transforms.Escape_Javascript (S);
 }}}
+
+
+= Source =
+
+http://code.google.com/p/ada-util/source/browse/trunk/samples/escape.adb
