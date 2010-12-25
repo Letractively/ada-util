@@ -2,7 +2,7 @@
 
 = Introduction =
 
-The *Util.Texts.Transforms* generic package provides various functions and
+The `Util.Texts.Transforms` generic package provides various functions and
 procedures to transform strings:
 
   * Capitalize a string,
@@ -11,7 +11,7 @@ procedures to transform strings:
   * Escape the string using Javascript escape rules,
   * Escape the string using XML escape rules
 
-The *Util.Strings.Transforms* package is an instantiation of this
+The `Util.Strings.Transforms` package is an instantiation of this
 generic package for the `String` and the `Unbounded_String` types.
 
 = With Declaration =
