@@ -2,8 +2,8 @@
 
 = Introduction =
 
-The `Util.Streams` package defines the `Input_Stream` and `Output_Stream` interfaces which
-allow to read and write data on a stream.  These interfaces are very close to the Java `InputStream` and `OutputStream`.
+The [Util.Streams|http://code.google.com/p/ada-util/source/browse/trunk/src/util-streams.ads] package defines the `Input_Stream` and `Output_Stream` interfaces which
+allow to read and write data on a stream.  These interfaces are very close to the Java `InputStream` and `OutputStream` classes.
 
 
 = Buffered Streams =
