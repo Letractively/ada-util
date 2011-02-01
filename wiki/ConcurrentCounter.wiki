@@ -146,4 +146,6 @@ end record;
 
 [http://code.google.com/p/ada-util/source/browse/trunk/src/asm-none/util-concurrent-counters.ads Util.Concurrent.Counters]
 
+== References ==
+
 [http://blog.vacs.fr/index.php?post/2011/02/01/Showing-multiprocessor-issue-when-updating-a-shared-counter Showing multiprocessor issue when updating a shared counter]
