@@ -27,3 +27,27 @@ to be serialized/deserialized.
 {{{
  type Address_Fields is (FIELD_CITY, FIELD_STREET, FIELD_COUNTRY, FIELD_ZIP);
 }}}
+
+The procedure that must be written is in charge of writing one field in the record. For that it gets the record as an in out parameter, the field identification and the value.
+
+{{{
+procedure Set_Member (Addr  : in out Address;
+                          Field : in Address_Fields;
+                          Value : in Util.Beans.Objects.Object) is
+begin
+   case Field is
+          when FIELD_CITY =>
+             Addr.City := To_Unbounded_String (Value);
+
+           when FIELD_STREET =>
+             Addr.Street := To_Unbounded_String (Value);
+
+           when FIELD_COUNTRY =>
+        Addr.Country := To_Unbounded_String (Value);
+     
+    when FIELD_ZIP =>
+        Addr.Zip := To_Integer (Value);
+   end case;    
+end Set_Member; 
+}}}
+
