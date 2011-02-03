@@ -65,3 +65,21 @@ package Address_Mapper is
       Fields              => Address_Fields,
       Set_Member          => Set_Member);  
 }}}
+
+
+== Mapping Definition ==
+
+The mapping package defines a `Mapper` type which holds the
+mapping definition.  The mapping definition tells a mapper what name correspond to the different fields.
+It is possible to define several mappings
+for the same record type.  The mapper object is declared as follows:
+
+{{{
+Address_Mapping : Address_Mapper.Mapper;  
+}}}
+
+Then, each field is bound to a name as follows:
+
+{{{
+Address_Mapping.Add_Mapping ("city", FIELD_CITY);    Address_Mapping.Add_Mapping ("street", FIELD_STREET);    Address_Mapping.Add_Mapping ("country", FIELD_COUNTRY);    Address_Mapping.Add_Mapping ("zip", FIELD_ZIP);  
+}}}
