@@ -81,5 +81,8 @@ Address_Mapping : Address_Mapper.Mapper;
 Then, each field is bound to a name as follows:
 
 {{{
-Address_Mapping.Add_Mapping ("city", FIELD_CITY);    Address_Mapping.Add_Mapping ("street", FIELD_STREET);    Address_Mapping.Add_Mapping ("country", FIELD_COUNTRY);    Address_Mapping.Add_Mapping ("zip", FIELD_ZIP);  
+Address_Mapping.Add_Mapping ("city", FIELD_CITY);
+Address_Mapping.Add_Mapping ("street", FIELD_STREET);
+Address_Mapping.Add_Mapping ("country", FIELD_COUNTRY);
+Address_Mapping.Add_Mapping ("zip", FIELD_ZIP);
 }}}
