@@ -1,0 +1,29 @@
+#summary Serialization of data structures in JSON/XML
+= Introduction =
+
+The `Util.Serialize` package provides a customizable
+framework to serialize and de-serialize data structures in JSON and XML.
+It is inspired from the Java [http://xstream.codehaus.org/ XStream] library.
+
+= Record Mapping =
+
+The serialization relies on a mapping that must be provided
+for each data structure that must be read.  Basically,
+it consists in writing an enum type, a procedure and instantiating
+a mapping package.  Let's assume we have a record declared as follows:
+
+{{{
+type Address is record       
+  City      : Unbounded_String;
+  Street    : Unbounded_String;
+  Country   : Unbounded_String;
+  Zip       : Natural;
+end record;  
+}}}
+
+The enum type shall define one value for each record member that has
+to be serialized/deserialized.
+
+{{{
+ type Address_Fields is (FIELD_CITY, FIELD_STREET, FIELD_COUNTRY, FIELD_ZIP);
+}}}
