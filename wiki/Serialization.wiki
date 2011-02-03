@@ -32,22 +32,36 @@ The procedure that must be written is in charge of writing one field in the reco
 
 {{{
 procedure Set_Member (Addr  : in out Address;
-                          Field : in Address_Fields;
-                          Value : in Util.Beans.Objects.Object) is
+                      Field : in Address_Fields;
+                      Value : in Util.Beans.Objects.Object) is
 begin
    case Field is
-          when FIELD_CITY =>
-             Addr.City := To_Unbounded_String (Value);
+     when FIELD_CITY =>
+       Addr.City := To_Unbounded_String (Value);
 
-           when FIELD_STREET =>
-             Addr.Street := To_Unbounded_String (Value);
+     when FIELD_STREET =>
+       Addr.Street := To_Unbounded_String (Value);
 
-           when FIELD_COUNTRY =>
-        Addr.Country := To_Unbounded_String (Value);
+     when FIELD_COUNTRY =>
+       Addr.Country := To_Unbounded_String (Value);
      
-    when FIELD_ZIP =>
+     when FIELD_ZIP =>
         Addr.Zip := To_Integer (Value);
    end case;    
 end Set_Member; 
 }}}
 
+The procedure will be called by the JSON or XML reader when a field
+is recognized.
+
+A mapping package has to be instantiated to provide the necessary
+glue to tie the set procedure to the framework.
+
+{{{
+package Address_Mapper is
+  new Util.Serialize.Mappers.Record_Mapper
+     (Element_Type        => Address,    
+      Element_Type_Access => Address_Access,
+      Fields              => Address_Fields,
+      Set_Member          => Set_Member);  
+}}}
