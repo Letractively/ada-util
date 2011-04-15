@@ -121,8 +121,6 @@ threads at the same time (the mapper is only read by the JSON/XML parsers).
 
 == De-serialization ==
 
-=== JSON De-serialization ===
-
 To de-serialize a JSON object, a parser object is created and one or several mappings are defined:
 {{{
 Reader : Util.Serialize.IO.JSON.Parser;
@@ -130,7 +128,15 @@ Reader : Util.Serialize.IO.JSON.Parser;
    Reader.Add_Mapping ("address", Address_Mapping'Access);
 }}}
 
-The next step is to indicate the object that the de-serialization will write into.  For this, the generic package provided the *Set_Context* procedure
+For an XML de-serialize, we just have to use another parser:
+
+{{{
+Reader : Util.Serialize.IO.XML.Parser;
+...
+   Reader.Add_Mapping ("address", Address_Mapping'Access);
+}}}
+
+The next step is to indicate the object that the de-serialization will write into.  For this, the generic package provided the `!Set_Context` procedure
 to register the root object that will be
 filled according to the mapping.
 
@@ -140,7 +146,7 @@ Addr : aliased Address;
   Address_Mapper.Set_Context (Reader, Addr'Access);
 }}}
 
-
+The `Parse` procedure parses a file using a JSON or XML parser.  It uses the mappings registered by `Add_Mapping` and fills the objects registered by `Set_Context`.  When the parsing is successful, the `Addr` object will hold the values.
 {{{
   Reader.Parse (File);
 }}}
