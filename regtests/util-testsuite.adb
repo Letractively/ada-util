@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util testsuite - Util Testsuite
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,43 +17,21 @@
 -----------------------------------------------------------------------
 
 with Util.Properties.Tests;
-with Util.Properties.Bundles.Tests;
 with Util.Log.Tests;
 with Util.Files.Tests;
 with Util.Concurrent.Tests;
 with Util.Events.Channels.Tests;
-with Util.Locales.Tests;
-with Util.Strings.Tests;
-with Util.Encoders.Tests;
-with Util.Streams.Buffered.Tests;
-with Util.Streams.Files.Tests;
-with Util.Beans.Objects.Discretes;
-with Util.Beans.Objects.Record_Tests;
-with Util.Serialize.IO.JSON.Tests;
-with Util.Serialize.IO.XML.Tests;
 package body Util.Testsuite is
 
-   Tests : aliased Test_Suite;
-
    function Suite return Access_Test_Suite is
-      Result : constant Access_Test_Suite := Tests'Access;
+      Ret : constant Access_Test_Suite := new Test_Suite;
    begin
-      Util.Properties.Tests.Add_Tests (Result);
-      Util.Properties.Bundles.Tests.Add_Tests (Result);
-      Util.Locales.Tests.Add_Tests (Result);
-      Util.Strings.Tests.Add_Tests (Result);
-      Util.Log.Tests.Add_Tests (Result);
-      Util.Files.Tests.Add_Tests (Result);
-      Util.Concurrent.Tests.Add_Tests (Result);
-      Util.Events.Channels.Tests.Add_Tests (Result);
-      Util.Encoders.Tests.Add_Tests (Result);
-      Util.Streams.Buffered.Tests.Add_Tests (Result);
-      Util.Streams.Files.Tests.Add_Tests (Result);
-      Util.Beans.Objects.Discretes.Add_Tests (Result);
-      Util.Beans.Objects.Record_Tests.Add_Tests (Result);
-      Util.Serialize.IO.JSON.Tests.Add_Tests (Result);
-      Util.Serialize.IO.XML.Tests.Add_Tests (Result);
-      return Result;
+      Util.Properties.Tests.Add_Tests (Ret);
+      Util.Log.Tests.Add_Tests (Ret);
+      Util.Files.Tests.Add_Tests (Ret);
+      Util.Concurrent.Tests.Add_Tests (Ret);
+      Util.Events.Channels.Tests.Add_Tests (Ret);
+      return Ret;
    end Suite;
 
 end Util.Testsuite;

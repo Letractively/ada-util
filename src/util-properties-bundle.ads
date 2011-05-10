@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  Logs -- Utility Log Package
+--  properties -- Generic name/value property management
 --  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -16,26 +16,28 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-package body Util.Log is
+package Util.Properties.Bundle is
 
-   --  ------------------------------
-   --  Get the log level name.
-   --  ------------------------------
-   function Get_Level_Name (Level : Level_Type) return String is
-   begin
-      if Level = FATAL_LEVEL then
-         return "FATAL";
-      elsif Level = ERROR_LEVEL then
-         return "ERROR";
-      elsif Level = WARN_LEVEL then
-         return "WARN ";
-      elsif Level = INFO_LEVEL then
-         return "INFO ";
-      elsif Level = DEBUG_LEVEL then
-         return "DEBUG";
-      else
-         return Level_Type'Image (Level);
-      end if;
-   end Get_Level_Name;
+   type Manager is new Util.Properties.Manager with private;
 
-end Util.Log;
+   procedure Add_Bundle (Self : in out Manager; Props : in Manager_Access);
+   --  Add a bundle
+
+   procedure Load_Bundle (Self : in out Manager;
+                          Path : in String;
+                          Name : in String);
+
+   procedure Find_Bundle (Self   : in Manager;
+                          Locale : in String;
+                          Bundle  : out Manager);
+
+private
+
+   type Manager is new Util.Properties.Manager with record
+      A : Integer := 0;
+   end record;
+
+   procedure Initialize (Object : in out Manager);
+   procedure Adjust (Object : in out Manager);
+
+end Util.Properties.Bundle;

@@ -33,7 +33,7 @@ package Util.Properties is
    --  The manager holding the name/value pairs and providing the operations
    --  to get and set the properties.
    type Manager is new Ada.Finalization.Controlled with private;
-   type Manager_Access is access all Manager'Class;
+   type Manager_Access is access Manager'Class;
 
    --  Returns TRUE if the property exists.
    function Exists (Self : in Manager'Class;
@@ -100,37 +100,24 @@ package Util.Properties is
    type Name_Array is array (Natural range <>) of Value;
 
    --  Return the name of the properties defined in the manager.
-   --  When a prefix is specified, only the properties starting with
-   --  the prefix are returned.
-   function Get_Names (Self   : in Manager;
-                       Prefix : in String := "") return Name_Array;
+   function Get_Names (Self : in Manager) return Name_Array;
 
    --  Load the properties from the file input stream.  The file must follow
-   --  the definition of Java property files.  When a prefix is specified, keep
-   --  only the properties that starts with the prefix.  When <b>Strip</b> is True,
-   --  the prefix part is removed from the property name.
-   procedure Load_Properties (Self   : in out Manager'Class;
-                              File   : in Ada.Text_IO.File_Type;
-                              Prefix : in String := "";
-                              Strip  : in Boolean := False);
+   --  the definition of Java property files.
+   procedure Load_Properties (Self : in out Manager'Class;
+                              File : in Ada.Text_IO.File_Type);
 
    --  Load the properties from the file.  The file must follow the
-   --  definition of Java property files.  When a prefix is specified, keep
-   --  only the properties that starts with the prefix.  When <b>Strip</b> is True,
-   --  the prefix part is removed from the property name.
+   --  definition of Java property files.
    --  Raises NAME_ERROR if the file does not exist.
-   procedure Load_Properties (Self   : in out Manager'Class;
-                              Path   : in String;
-                              Prefix : in String := "";
-                              Strip  : in Boolean := False);
+   procedure Load_Properties (Self : in out Manager'Class;
+                              Path : in String);
 
    --  Copy the properties from FROM which start with a given prefix.
-   --  If the prefix is empty, all properties are copied.  When <b>Strip</b> is True,
-   --  the prefix part is removed from the property name.
+   --  If the prefix is empty, all properties are copied.
    procedure Copy (Self   : in out Manager'Class;
                    From   : in Manager'Class;
-                   Prefix : in String := "";
-                   Strip  : in Boolean := False);
+                   Prefix : in String := "");
 
 private
 
@@ -171,8 +158,7 @@ private
       procedure Delete (Self : in Manager; Obj : in out Manager_Access)
         is abstract;
 
-      function Get_Names (Self   : in Manager;
-                          Prefix : in String) return Name_Array is abstract;
+      function Get_Names (Self : in Manager) return Name_Array is abstract;
 
    end Interface_P;
 
@@ -186,10 +172,7 @@ private
       Impl : Interface_P.Manager_Access := null;
    end record;
 
-   overriding
    procedure Adjust   (Object : in out Manager);
-
-   overriding
    procedure Finalize (Object : in out Manager);
 
 end Util.Properties;

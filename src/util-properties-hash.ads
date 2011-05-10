@@ -49,8 +49,7 @@ private package Util.Properties.Hash is
 
    procedure Delete (Self : in Manager; Obj : in out Interface_P.Manager_Access);
 
-   function Get_Names (Self   : in Manager;
-                       Prefix : in String) return Name_Array;
+   function Get_Names (Self : in Manager) return Name_Array;
 
 private
 

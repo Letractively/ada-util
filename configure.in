@@ -27,7 +27,7 @@ AC_EXEEXT
 
 # Current release settings
 UTIL_MAJOR_VERSION=1
-UTIL_MINOR_VERSION=2
+UTIL_MINOR_VERSION=0
 UTIL_MICRO_VERSION=0
 UTIL_VERSION=$UTIL_MAJOR_VERSION.$UTIL_MINOR_VERSION.$UTIL_MICRO_VERSION
 
@@ -51,60 +51,6 @@ AC_SUBST(EXEC_PREFIX)
 UTIL_LIBDIR="lib"
 AC_SUBST(UTIL_LIBDIR)
 
-
-case "${host}" in
-  ## Intel 386 machines where we don't care about the manufacturer
-  i[[3456]]86-*-* )
-    src_asm='asm-x86'
-    ;;
-
-  *)
-    src_asm='asm-none'
-    ;;
-
-esac
-
-UTIL_ASM_DIR="src/$src_asm"
-AC_SUBST(UTIL_ASM_DIR)
-
-##########################################
-# XMLAda library
-##########################################
-
-ac_xml_ada=xmlada-config
-AC_MSG_CHECKING([xmlada library])
-AC_ARG_WITH(xml,
-AS_HELP_STRING([--with-xmlada=], [Enable XML serialization]),
-[
-  ac_xml_ada=${withval}/xmlada-config
-  WITH_XML_ADA="with \"${withval}\";";
-  UTIL_XML_DIR='src/xml';
-],
-[
-  WITH_XML_ADA='';
-  UTIL_XML_DIR='src';
-])
-
-ac_xml_version=`$ac_xml_ada --version 2>/dev/null | sed -e 's, ,-,g'`
-case $ac_xml_version in
-  XmlAda-3.2*)
-      AC_MSG_RESULT($ac_xml_version)
-      WITH_XML_ADA="with \"xmlada\";";
-      UTIL_XML_DIR='src/xml';
-      ;;
-
-  *)
-      AC_MSG_RESULT(no)
-      WITH_XML_ADA='';
-      UTIL_XML_DIR='src';
-      ;;
-
-esac
-
-AC_MSG_RESULT(${WITH_XML})
-AC_SUBST(WITH_XML_ADA)
-AC_SUBST(UTIL_XML_DIR)
-
 AC_OUTPUT(
-Makefile util.gpr
+Makefile config.gpr
 )

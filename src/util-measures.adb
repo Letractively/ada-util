@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  measure -- Benchmark tools
---  Copyright (C) 2008, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2008, 2009, 2010 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,12 +18,7 @@
 with Ada.Task_Attributes;
 with Ada.Strings.Hash;
 with Ada.Unchecked_Deallocation;
-with GNAT.Calendar.Time_IO;
-
-with Util.Streams.Buffered;
 package body Util.Measures is
-
-   ISO_DATE_TIME : constant GNAT.Calendar.Time_IO.Picture_String := "%Y-%m-%d %H:%M:%S";
 
    procedure Free is
      new Ada.Unchecked_Deallocation (Buckets_Type, Buckets_Access);
@@ -73,87 +68,52 @@ package body Util.Measures is
 
    --  ------------------------------
    --  Dump an XML result with the measures collected by the measure set.
-   --  When writing the measures, the measure set is cleared.  It is safe
-   --  to write measures while other measures are being collected.
-   --  ------------------------------
-   procedure Write (Measures : in out Measure_Set;
-                    Title    : in String;
-                    Stream   : in out Util.Streams.Texts.Print_Stream'Class) is
-
-      use Util.Streams.Buffered;
-
-      procedure Dump_XML (Item : in Measure_Access);
-
-      procedure Dump_XML (Item : in Measure_Access) is
-         Time  : constant String := Format (Item.Time);
-      begin
-         Stream.Write ("<time count=""");
-         Stream.Write (Item.Count);
-         Stream.Write (""" time=""");
-         Stream.Write (Time (Time'First + 1 .. Time'Last));
-         Stream.Write (""" title=""");
-         Util.Streams.Texts.TR.Escape_Java_Script (Into => Buffered_Stream (Stream),
-                                                   Content => Item.Name.all);
-         Stream.Write ("""/>");
-         Stream.Write (ASCII.LF);
-      end Dump_XML;
-
-      Buckets : Buckets_Access;
-      TS, TE  : Ada.Calendar.Time;
-
-   begin
-      Measures.Data.Steal_Map (Buckets, TS, TE);
-      Stream.Write ("<measures title=""");
-      Util.Streams.Texts.TR.Escape_Java_Script (Into    => Buffered_Stream (Stream),
-                                                Content => Title);
-      Stream.Write (""" start=""");
-      Stream.Write (TS, ISO_DATE_TIME);
-      Stream.Write (""" end=""");
-      Stream.Write (TE, ISO_DATE_TIME);
-      Stream.Write (""">");
-      if Buckets /= null then
-         begin
-            for I in Buckets'Range loop
-               declare
-                  Next : Measure_Access;
-                  Node : Measure_Access := Buckets (I);
-               begin
-                  while Node /= null loop
-                     Dump_XML (Node);
-                     Free (Node.Name);
-                     Next := Node.Next;
-                     Free (Node);
-                     Node := Next;
-                  end loop;
-               end;
-            end loop;
-
-         exception
-            when others =>
-               Free (Buckets);
-               raise;
-         end;
-         Free (Buckets);
-      end if;
-      Stream.Write ("</measures>");
-   end Write;
-
-   --  ------------------------------
-   --  Dump an XML result with the measures collected by the measure set.
    --  ------------------------------
    procedure Write (Measures : in out Measure_Set;
                     Title    : in String;
                     Stream   : in Ada.Text_IO.File_Type) is
+      use Ada.Text_IO;
 
-      Buffer : aliased Util.Streams.Buffered.Buffered_Stream;
-      Output : Util.Streams.Texts.Print_Stream;
+      procedure Dump_XML (Item : in Measure_Access);
+
+      procedure Dump_XML (Item : in Measure_Access) is
+         Count : constant String := Positive'Image (Item.Count);
+         Time  : constant String := Format (Item.Time);
+      begin
+         Put (Stream, "<time count=""");
+         Put (Stream, Count (Count'First + 1 .. Count'Last));
+         Put (Stream, """ time=""");
+         Put (Stream, Time (Time'First + 1 .. Time'Last));
+         Put (Stream, """ title=""");
+         Put (Stream, Item.Name.all);
+         Put_Line (Stream, """/>");
+      end Dump_XML;
+
+      Buckets : Buckets_Access;
 
    begin
-      Buffer.Initialize (Size => 128 * 1024);
-      Output.Initialize (To => Buffer'Unchecked_Access);
-      Write (Measures, Title, Output);
-      Output.Flush;
-      Ada.Text_IO.Put_Line (Stream, Util.Streams.Texts.To_String (Buffer));
+      Put (Stream, "<measures title=""");
+      Put (Stream, Title);
+      Put_Line (Stream, """>");
+      Measures.Data.Steal_Map (Buckets);
+      if Buckets /= null then
+         for I in Buckets'Range loop
+            declare
+               Next : Measure_Access;
+               Node : Measure_Access := Buckets (I);
+            begin
+               while Node /= null loop
+                  Dump_XML (Node);
+                  Free (Node.Name);
+                  Next := Node.Next;
+                  Free (Node);
+                  Node := Next;
+               end loop;
+            end;
+         end loop;
+         Free (Buckets);
+      end if;
+      Put_Line (Stream, "</measures>");
    end Write;
 
    --  ------------------------------
@@ -212,23 +172,17 @@ package body Util.Measures is
 
       --  ------------------------------
       --  Get the measures and clear to start a new set of measures.
-      --  Return in <b>Time_Start</b> and <b>Time_End</b> the period of time.
       --  ------------------------------
-      procedure Steal_Map (Result     : out Buckets_Access;
-                           Time_Start : out Ada.Calendar.Time;
-                           Time_End   : out Ada.Calendar.Time) is
+      entry Steal_Map (Result : out Buckets_Access) when True is
       begin
-         Result     := Buckets;
-         Time_Start := Start;
-         Start      := Ada.Calendar.Clock;
-         Time_End   := Start;
-         Buckets    := null;
+         Result  := Buckets;
+         Buckets := null;
       end Steal_Map;
 
       --  ------------------------------
       --  Add the measure
       --  ------------------------------
-      procedure Add (Title : String; D : Duration) is
+      entry Add (Title : String; D : Duration) when True is
 
          use Ada.Containers;
          use Ada.Calendar;
@@ -273,35 +227,5 @@ package body Util.Measures is
          return Duration'Image (D) & "s";
       end if;
    end Format;
-
-   --  ------------------------------
-   --  Finalize the measures and release the storage.
-   --  ------------------------------
-   overriding
-   procedure Finalize (Measures : in out Measure_Set) is
-      Buckets : Buckets_Access;
-      TS, TE  : Ada.Calendar.Time;
-   begin
-      --  When deleting the measure set, we have to release the buckets and measures
-      --  that were allocated.  We could call <b>Write</b> but we don't know where
-      --  the measures have to be written.
-      Measures.Data.Steal_Map (Buckets, TS, TE);
-      if Buckets /= null then
-         for I in Buckets'Range loop
-            declare
-               Next : Measure_Access;
-               Node : Measure_Access := Buckets (I);
-            begin
-               while Node /= null loop
-                  Free (Node.Name);
-                  Next := Node.Next;
-                  Free (Node);
-                  Node := Next;
-               end loop;
-            end;
-         end loop;
-         Free (Buckets);
-      end if;
-   end Finalize;
 
 end Util.Measures;

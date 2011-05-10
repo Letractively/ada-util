@@ -4,15 +4,17 @@ with "aunit";
 
 project Testutil is
 
-   for Source_Dirs use ("testutil");
-   for Library_Dir use Util.Library_Dir & "/testutil";
-   for Library_Name use "adatestutil";
+   for Source_Dirs use ("regtests");
+   for Excluded_Source_Files use ("util_harness.adb");
+   for Library_Dir use "../lib/testutil";
+   for Library_Name use "testutil";
    for Library_Kind use "static";
 
-   for Object_Dir use "obj/testutil";
+   for Object_Dir use "obj/";
 
-   package Binder renames Config.Binder;
-   package Builder renames Config.Builder;
-   package Compiler renames Config.Compiler;
+   package Binder renames Shared.Binder;
+   package Builder renames Shared.Builder;
+   package Compiler renames Shared.Compiler;
+   package Linker renames Shared.Linker;
 
 end Testutil;

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  measure -- Benchmark tools
---  Copyright (C) 2008, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2008, 2009, 2010 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +16,8 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Text_IO;
-with Ada.Calendar;
-with Ada.Containers;
-with Ada.Finalization;
-
-with Util.Streams.Texts;
+private with Ada.Calendar;
+private with Ada.Containers;
 
 --  The <b>Measures</b> package defines utility types and functions to make
 --  performance measurements in an Ada application.  It is designed to be used
@@ -65,13 +62,6 @@ package Util.Measures is
 
    --  Get the per-thread measure set.
    function Get_Current return Measure_Set_Access;
-
-   --  Dump an XML result with the measures collected by the measure set.
-   --  When writing the measures, the measure set is cleared.  It is safe
-   --  to write measures while other measures are being collected.
-   procedure Write (Measures : in out Measure_Set;
-                    Title    : in String;
-                    Stream   : in out Util.Streams.Texts.Print_Stream'Class);
 
    --  Dump an XML result with the measures collected by the measure set.
    --  When writing the measures, the measure set is cleared.  It is safe
@@ -133,28 +123,20 @@ private
    protected type Measure_Data is
 
       --  Get the measures and clear to start a new set of measures.
-      --  Return in <b>Time_Start</b> and <b>Time_End</b> the period of time.
-      procedure Steal_Map (Result     : out Buckets_Access;
-                           Time_Start : out Ada.Calendar.Time;
-                           Time_End   : out Ada.Calendar.Time);
+      entry Steal_Map (Result : out Buckets_Access);
 
       --  Add the measure
-      procedure Add (Title : in String; D : in Duration);
+      entry Add (Title : in String; D : in Duration);
 
    private
-      Start   : Ada.Calendar.Time := Ada.Calendar.Clock;
       Buckets : Buckets_Access;
    end Measure_Data;
 
-   type Measure_Set is new Ada.Finalization.Limited_Controlled with record
+   type Measure_Set is limited record
       Enabled : Boolean := True;
       pragma Atomic (Enabled);
 
       Data    : Measure_Data;
    end record;
-
-   --  Finalize the measures and release the storage.
-   overriding
-   procedure Finalize (Measures : in out Measure_Set);
 
 end Util.Measures;

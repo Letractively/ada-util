@@ -20,7 +20,7 @@ with Ada.Strings.Unbounded;
 
 with Util.Log.Appenders;
 with Util.Properties;
-with Ada.Finalization;
+private with Ada.Finalization;
 package Util.Log.Loggers is
 
    use Ada.Exceptions;
@@ -36,19 +36,12 @@ package Util.Log.Loggers is
    --  Create a logger with the given name.
    function Create (Name : in String) return Logger;
 
-   --  Initialize the logger and create a logger with the given name.
-   function Create (Name   : in String;
-                    Config : in String) return Logger;
-
    --  Change the log level
    procedure Set_Level (Log   : in out Logger;
                         Level : in Level_Type);
 
    --  Get the log level.
    function Get_Level (Log : in Logger) return Level_Type;
-
-   --  Get the log level name.
-   function Get_Level_Name (Log : in Logger) return String;
 
    procedure Print (Log     : in Logger;
                     Level   : in Level_Type;
@@ -61,18 +54,6 @@ package Util.Log.Loggers is
                     Message : in String;
                     Arg1    : in String := "";
                     Arg2    : in String := "";
-                    Arg3    : in String := "");
-
-   procedure Debug (Log     : in Logger'Class;
-                    Message : in String;
-                    Arg1    : in Unbounded_String;
-                    Arg2    : in String := "";
-                    Arg3    : in String := "");
-
-   procedure Debug (Log     : in Logger'Class;
-                    Message : in String;
-                    Arg1    : in Unbounded_String;
-                    Arg2    : in Unbounded_String;
                     Arg3    : in String := "");
 
    procedure Info (Log     : in Logger'Class;
@@ -115,20 +96,10 @@ package Util.Log.Loggers is
 
 private
 
-   type Logger_Info;
-   type Logger_Info_Access is access all Logger_Info;
-
-   type Logger_Info is record
-      Next_Logger : Logger_Info_Access;
-      Prev_Logger : Logger_Info_Access;
-      Level       : Level_Type := INFO_LEVEL;
-      Name        : Unbounded_String;
-      Appender    : Util.Log.Appenders.Appender_Access;
-   end record;
-
-   type Logger is new Ada.Finalization.Limited_Controlled with record
+   type Logger is new Ada.Finalization.Limited_Controlled with  record
+      Level    : Level_Type := INFO_LEVEL;
       Name     : Unbounded_String;
-      Instance : Logger_Info_Access;
+      Appender : Util.Log.Appenders.Appender_Access;
    end record;
 
    --  Finalize the logger and flush the associated appender
