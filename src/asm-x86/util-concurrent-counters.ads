@@ -38,8 +38,6 @@
 private with Interfaces;
 package Util.Concurrent.Counters is
 
-   pragma Preelaborate;
-
    --  ------------------------------
    --  Atomic Counter
    --  ------------------------------
@@ -50,25 +48,20 @@ package Util.Concurrent.Counters is
 
    --  Increment the counter atomically.
    procedure Increment (C : in out Counter);
-   pragma Inline_Always (Increment);
-
-   --  Increment the counter atomically and return the value before increment.
-   procedure Increment (C     : in out Counter;
-                        Value : out Integer);
-   pragma Inline_Always (Increment);
+   pragma Inline (Increment);
 
    --  Decrement the counter atomically.
    procedure Decrement (C : in out Counter);
-   pragma Inline_Always (Decrement);
+   pragma Inline (Decrement);
 
    --  Decrement the counter atomically and return a status.
    procedure Decrement (C : in out Counter;
                         Is_Zero : out Boolean);
-   pragma Inline_Always (Decrement);
+   pragma Inline (Decrement);
 
    --  Get the counter value
    function Value (C : in Counter) return Integer;
-   pragma Inline_Always (Value);
+   pragma Inline (Value);
 
    ONE : constant Counter;
 

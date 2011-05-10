@@ -106,31 +106,21 @@ package Util.Properties is
                        Prefix : in String := "") return Name_Array;
 
    --  Load the properties from the file input stream.  The file must follow
-   --  the definition of Java property files.  When a prefix is specified, keep
-   --  only the properties that starts with the prefix.  When <b>Strip</b> is True,
-   --  the prefix part is removed from the property name.
-   procedure Load_Properties (Self   : in out Manager'Class;
-                              File   : in Ada.Text_IO.File_Type;
-                              Prefix : in String := "";
-                              Strip  : in Boolean := False);
+   --  the definition of Java property files.
+   procedure Load_Properties (Self : in out Manager'Class;
+                              File : in Ada.Text_IO.File_Type);
 
    --  Load the properties from the file.  The file must follow the
-   --  definition of Java property files.  When a prefix is specified, keep
-   --  only the properties that starts with the prefix.  When <b>Strip</b> is True,
-   --  the prefix part is removed from the property name.
+   --  definition of Java property files.
    --  Raises NAME_ERROR if the file does not exist.
-   procedure Load_Properties (Self   : in out Manager'Class;
-                              Path   : in String;
-                              Prefix : in String := "";
-                              Strip  : in Boolean := False);
+   procedure Load_Properties (Self : in out Manager'Class;
+                              Path : in String);
 
    --  Copy the properties from FROM which start with a given prefix.
-   --  If the prefix is empty, all properties are copied.  When <b>Strip</b> is True,
-   --  the prefix part is removed from the property name.
+   --  If the prefix is empty, all properties are copied.
    procedure Copy (Self   : in out Manager'Class;
                    From   : in Manager'Class;
-                   Prefix : in String := "";
-                   Strip  : in Boolean := False);
+                   Prefix : in String := "");
 
 private
 
@@ -186,10 +176,7 @@ private
       Impl : Interface_P.Manager_Access := null;
    end record;
 
-   overriding
    procedure Adjust   (Object : in out Manager);
-
-   overriding
    procedure Finalize (Object : in out Manager);
 
 end Util.Properties;

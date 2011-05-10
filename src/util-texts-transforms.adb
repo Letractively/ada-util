@@ -24,9 +24,6 @@ package body Util.Texts.Transforms is
    procedure Put_Dec (Into  : in out Stream;
                       Value : in Code);
 
-   procedure To_Hex (Into  : in out Stream;
-                     Value : in Code);
-
    procedure Put (Into  : in out Stream;
                   Value : in String) is
    begin
@@ -35,20 +32,7 @@ package body Util.Texts.Transforms is
       end loop;
    end Put;
 
-   --  ------------------------------
-   --  Write in the output stream the value as a \uNNNN encoding form.
-   --  ------------------------------
-   procedure To_Hex (Into  : in out Stream;
-                     Value : in Char) is
-   begin
-      To_Hex (Into, Code (Char'Pos (Value)));
-   end To_Hex;
-
-   --  ------------------------------
-   --  Write in the output stream the value as a \uNNNN encoding form.
-   --  ------------------------------
-   procedure To_Hex (Into  : in out Stream;
-                     Value : in Code) is
+   procedure Put_Hex (Into : in out Stream; Value : Code) is
       S          : String (1 .. 6) := (1 => '\', 2 => 'u', others => '0');
       P          : Code := Value;
       N          : Code;
@@ -62,7 +46,7 @@ package body Util.Texts.Transforms is
          I := I - 1;
       end loop;
       Put (Into, S);
-   end To_Hex;
+   end Put_Hex;
 
    procedure Put_Dec (Into  : in out Stream;
                       Value : in Code) is
@@ -95,8 +79,7 @@ package body Util.Texts.Transforms is
             Upper := False;
          else
             C := Char'Pos (To_Lower (Content (I)));
-            if C = Character'Pos ('_') or C = Character'Pos ('.') or C = Character'Pos (':')
-              or C = Character'Pos (';') or C = Character'Pos (',') or C = Character'Pos (' ') then
+            if C = Character'Pos ('_') then
                Upper := True;
             end if;
          end if;
@@ -224,7 +207,7 @@ package body Util.Texts.Transforms is
                Put (Into, '\');
                Put (Into, 'f');
             else
-               To_Hex (Into, C);
+               Put_Hex (Into, C);
             end if;
 
          elsif C = 16#27# then
@@ -242,7 +225,7 @@ package body Util.Texts.Transforms is
             Put (Into, Character'Val (C));
 
          elsif C > 16#80# then
-            To_Hex (Into, C);
+            Put_Hex (Into, C);
 
          else
             Put (Into, Character'Val (C));

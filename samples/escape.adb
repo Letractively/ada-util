@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  escape -- Text Transformations
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,13 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Util.Strings.Transforms;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Command_Line;
-with Util.Strings;
+
 procedure Escape is
+
+   use Ada.Strings.Unbounded;
 
    Count : constant Natural := Ada.Command_Line.Argument_Count;
 begin

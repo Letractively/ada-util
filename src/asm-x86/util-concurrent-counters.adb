@@ -31,26 +31,9 @@ package body Util.Concurrent.Counters is
    --  ------------------------------
    procedure Increment (C : in out Counter) is
    begin
-      Asm (Template => "lock incl %0",
+      Asm ("lock; incl %0",
            Volatile => True,
-           Outputs  => Unsigned_32'Asm_Output ("+m", C.Value),
-           Clobber  => "memory");
-   end Increment;
-
-   --  ------------------------------
-   --  Increment the counter atomically and return the value before increment.
-   --  ------------------------------
-   procedure Increment (C     : in out Counter;
-                        Value : out Integer) is
-      Val : Unsigned_32 := 1;
-   begin
-      Asm (Template => "lock xaddl %1,%0",
-           Volatile => True,
-           Outputs  => (Unsigned_32'Asm_Output ("+m", C.Value),
-                        Unsigned_32'Asm_Output ("=r", Val)),
-           Inputs   => Unsigned_32'Asm_Input ("1", Val),
-           Clobber  => "memory");
-      Value := Integer (Val);
+           Outputs  => Unsigned_32'Asm_Output ("+m", C.Value));
    end Increment;
 
    --  ------------------------------
@@ -58,10 +41,9 @@ package body Util.Concurrent.Counters is
    --  ------------------------------
    procedure Decrement (C : in out Counter) is
    begin
-      Asm (Template => "lock decl %0",
+      Asm ("lock; decl %0",
            Volatile => True,
-           Outputs  => Unsigned_32'Asm_Output ("+m", C.Value),
-           Clobber  => "memory");
+           Outputs => Unsigned_32'Asm_Output ("+m", C.Value));
    end Decrement;
 
    --  ------------------------------
@@ -71,7 +53,7 @@ package body Util.Concurrent.Counters is
                         Is_Zero : out Boolean) is
       Result : Unsigned_8;
    begin
-      Asm ("lock decl %0; sete %1",
+      Asm ("lock; decl %0; sete %1",
            Volatile => True,
            Outputs => (Unsigned_32'Asm_Output ("+m", C.Value),
                        Unsigned_8'Asm_Output ("=qm", Result)));

@@ -17,6 +17,4 @@
 -----------------------------------------------------------------------
 package Util.Concurrent is
 
-   pragma Pure;
-
 end Util.Concurrent;

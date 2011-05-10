@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Logs -- Utility Log Package
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,8 +20,6 @@
 --  from the Java Log4j library.
 package Util.Log is
 
-   pragma Preelaborate;
-
    subtype Level_Type is Natural;
 
    FATAL_LEVEL : constant Level_Type := 0;
@@ -32,9 +30,5 @@ package Util.Log is
 
    --  Get the log level name.
    function Get_Level_Name (Level : Level_Type) return String;
-
-   --  Get the log level from the property value
-   function Get_Level (Value   : in String;
-                       Default : in Level_Type := INFO_LEVEL) return Level_Type;
 
 end Util.Log;

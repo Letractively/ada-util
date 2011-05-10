@@ -35,8 +35,6 @@
 --
 package Util.Concurrent.Counters is
 
-   pragma Preelaborate;
-
    --  ------------------------------
    --  Atomic Counter
    --  ------------------------------
@@ -47,10 +45,6 @@ package Util.Concurrent.Counters is
 
    --  Increment the counter atomically.
    procedure Increment (C : in out Counter);
-
-   --  Increment the counter atomically and return the value before increment.
-   procedure Increment (C     : in out Counter;
-                        Value : out Integer);
 
    --  Decrement the counter atomically.
    procedure Decrement (C : in out Counter);
@@ -74,8 +68,6 @@ private
    protected type Cnt is
 
       procedure Increment;
-
-      procedure Increment (Value : out Integer);
 
       procedure Decrement (Is_Zero : out Boolean);
 

@@ -37,15 +37,6 @@ package body Util.Concurrent.Counters is
    end Increment;
 
    --  ------------------------------
-   --  Increment the counter atomically and return the value before increment.
-   --  ------------------------------
-   procedure Increment (C     : in out Counter;
-                        Value : out Integer) is
-   begin
-      C.Value.Increment (Value);
-   end Increment;
-
-   --  ------------------------------
    --  Decrement the counter atomically.
    --  ------------------------------
    procedure Decrement (C : in out Counter) is
@@ -75,12 +66,6 @@ package body Util.Concurrent.Counters is
 
       procedure Increment is
       begin
-         N := N + 1;
-      end Increment;
-
-      procedure Increment (Value : out Integer) is
-      begin
-         Value := N;
          N := N + 1;
       end Increment;
 

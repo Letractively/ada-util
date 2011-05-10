@@ -20,16 +20,12 @@ with GNAT.Command_Line;
 with AUnit.Options;
 with AUnit.Reporter.Text;
 with AUnit.Run;
+with Util.Measures;
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.IO_Exceptions;
 with Ada.Text_IO;
-with Ada.Calendar.Formatting;
-
-with Util.Strings;
-with Util.Measures;
 with Util.Files;
-with Util.Log.Loggers;
 package body Util.Tests is
 
    use AUnit.Assertions;
@@ -72,68 +68,19 @@ package body Util.Tests is
    end Get_Parameter;
 
    --  ------------------------------
-   --  Get the test configuration properties.
-   --  ------------------------------
-   function Get_Properties return Util.Properties.Manager is
-   begin
-      return Test_Properties;
-   end Get_Properties;
-
-   --  ------------------------------
-   --  Get a new unique string
-   --  ------------------------------
-   function Get_Uuid return String is
-      Time  : constant Ada.Calendar.Time := Ada.Calendar.Clock;
-      Year  : Ada.Calendar.Year_Number;
-      Month : Ada.Calendar.Month_Number;
-      Day   : Ada.Calendar.Day_Number;
-      T     : Ada.Calendar.Day_Duration;
-      V     : Long_Long_Integer;
-   begin
-      Ada.Calendar.Split (Date    => Time,
-                          Year    => Year,
-                          Month   => Month,
-                          Day     => Day,
-                          Seconds => T);
-      V := (Long_Long_Integer (Year) * 365 * 24 * 3600 * 1000)
-        + (Long_Long_Integer (Month) * 31 * 24 * 3600 * 1000)
-        + (Long_Long_Integer (Day) * 24 * 3600 * 1000)
-        + (Long_Long_Integer (T * 1000));
-      return "U" & Util.Strings.Image (V);
-   end Get_Uuid;
-
-   --  ------------------------------
    --  Check that the value matches what we expect.
    --  ------------------------------
---     procedure Assert_Equals (T       : in AUnit.Assertions.Test'Class;
---                              Expect, Value : in Integer;
---                              Message : in String := "Test failed";
---                              Source    : String := GNAT.Source_Info.File;
---                              Line      : Natural := GNAT.Source_Info.Line) is
---     begin
---        T.Assert (Condition => Expect = Value,
---                  Message   => Message & ": expecting '"
---                  & Integer'Image (Expect) & "'"
---                  & " value was '"
---                  & Integer'Image (Value) & "'",
---                  Source    => Source,
---                  Line      => Line);
---     end Assert_Equals;
-
-   --  ------------------------------
-   --  Check that the value matches what we expect.
-   --  ------------------------------
-   procedure Assert_Equals (T         : in AUnit.Assertions.Test'Class;
-                            Expect, Value : in Ada.Calendar.Time;
-                            Message   : in String := "Test failed";
+   procedure Assert_Equals (T       : in AUnit.Assertions.Test'Class;
+                            Expect, Value : in Integer;
+                            Message : in String := "Test failed";
                             Source    : String := GNAT.Source_Info.File;
                             Line      : Natural := GNAT.Source_Info.Line) is
-      use Ada.Calendar.Formatting;
-      use Ada.Calendar;
    begin
-      T.Assert (Condition => Image (Expect) = Image (Value),
-                Message   => Message & ": expecting '" & Image (Expect) & "'"
-                & " value was '" & Image (Value) & "'",
+      T.Assert (Condition => Expect = Value,
+                Message   => Message & ": expecting '"
+                & Integer'Image (Expect) & "'"
+                & " value was '"
+                & Integer'Image (Value) & "'",
                 Source    => Source,
                 Line      => Line);
    end Assert_Equals;
@@ -188,23 +135,14 @@ package body Util.Tests is
       Test_File   : Unbounded_String;
       Same        : Boolean;
    begin
-      begin
-         if not Ada.Directories.Exists (Expect) then
-            T.Assert (False, "Expect file '" & Expect & "' does not exist",
-                      Source => Source, Line => Line);
-         end if;
-         Read_File (Path => Expect,
-                    Into => Expect_File);
-         Read_File (Path => Test,
-                    Into => Test_File);
-
-      exception
-         when others =>
-            if Update_Test_Files then
-               Ada.Directories.Copy_File (Source_Name => Test,
-                                          Target_Name => Expect);
-            end if;
-      end;
+      if not Ada.Directories.Exists (Expect) then
+         T.Assert (False, "Expect file '" & Expect & "' does not exist",
+                   Source => Source, Line => Line);
+      end if;
+      Read_File (Path => Expect,
+                 Into => Expect_File);
+      Read_File (Path => Test,
+                 Into => Test_File);
 
       --  Check file sizes
       Assert_Equals (T       => T,
@@ -218,6 +156,13 @@ package body Util.Tests is
       if Same then
          return;
       end if;
+
+   exception
+      when others =>
+         if Update_Test_Files then
+            Ada.Directories.Copy_File (Source_Name => Test,
+                                       Target_Name => Expect);
+         end if;
    end Assert_Equal_Files;
 
    --  ------------------------------
@@ -283,11 +228,6 @@ package body Util.Tests is
                return;
          end case;
       end loop;
-
-      --  Initialization is optional.  Get the log configuration by reading the property
-      --  file 'samples/log4j.properties'.  The 'log.util' logger will use a DEBUG level
-      --  and write the message in 'result.log'.
-      Util.Log.Loggers.Initialize (Test_Properties);
 
       Initialize (Test_Properties);
 

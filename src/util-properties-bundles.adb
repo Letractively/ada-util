@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  properties -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,6 +31,10 @@ package body Util.Properties.Bundles is
    procedure Free is
      new Ada.Unchecked_Deallocation (Manager'Class,
                                      Bundle_Manager_Access);
+
+   procedure Free is
+     new Ada.Unchecked_Deallocation (String,
+                                     Util.Strings.String_Access);
 
    --  Implementation of the Bundle
    --  (this allows to decouples the implementation from the API)
@@ -166,7 +170,7 @@ package body Util.Properties.Bundles is
       use type Util.Properties.Manager_Access;
 
       Loc_Name : constant String := '_' & Locale;
-      Last_Pos : Integer := Loc_Name'Last;
+      Last_Pos : Natural := Loc_Name'Last;
    begin
       Log.Info ("Looking for bundle {0} and language {1}", Name, Locale);
 
@@ -175,12 +179,11 @@ package body Util.Properties.Bundles is
       declare
          Pos : Bundle_Map.Cursor;
       begin
-         while Last_Pos + 1 >= Loc_Name'First loop
+         while Last_Pos >= Loc_Name'First loop
             declare
                Bundle_Name : aliased constant String
                  := Name & Loc_Name (Loc_Name'First .. Last_Pos);
             begin
-               Log.Debug ("Searching for {0}", Bundle_Name);
                Pos := Factory.Bundles.Find (Bundle_Name'Unrestricted_Access);
                if Bundle_Map.Has_Element (Pos) then
                   Bundle.Finalize;
@@ -191,7 +194,7 @@ package body Util.Properties.Bundles is
                end if;
             end;
             if Last_Pos > Loc_Name'First then
-               Last_Pos := Fixed.Index (Loc_Name, "_", Last_Pos - 1, Backward) - 1;
+               Last_Pos := Fixed.Index (Loc_Name, "_", Last_Pos - 1, Backward);
             else
                Last_Pos := Last_Pos - 1;
             end if;
@@ -402,15 +405,16 @@ package body Util.Properties.Bundles is
       function Get_Names (Self   : in Manager;
                           Prefix : in String) return Name_Array is
          Result : Name_Array (1 .. 2);
-         Iter   : constant Cursor := Self.List.First;
+         Iter : Cursor := Self.List.First;
       begin
          while Has_Element (Iter) loop
             declare
-               M : constant Util.Properties.Manager_Access := Element (Iter);
+	       M : constant Util.Properties.Manager_Access := Element (Iter);
                N : constant Name_Array := M.Get_Names (Prefix);
             begin
                return N;
             end;
+            Iter := Next (Iter);
          end loop;
          return Result;
       end Get_Names;
@@ -432,7 +436,7 @@ package body Util.Properties.Bundles is
 
       function To_String_Access is
         new Ada.Unchecked_Conversion (Source => Util.Strings.Name_Access,
-                                      Target => Ada.Strings.Unbounded.String_Access);
+                                      Target => Util.Strings.String_Access);
 
    begin
       Log.Info ("Clearing bundle cache");
@@ -441,7 +445,7 @@ package body Util.Properties.Bundles is
       loop
          declare
             Pos  : Bundle_Map.Cursor := Factory.Bundles.First;
-            Name : Ada.Strings.Unbounded.String_Access;
+            Name : Util.Strings.String_Access;
             Node : Bundle_Manager_Access;
          begin
             exit when not Has_Element (Pos);

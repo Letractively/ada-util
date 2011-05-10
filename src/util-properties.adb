@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  properties -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,12 +23,6 @@ package body Util.Properties is
    use Ada.Text_IO;
    use Ada.Strings.Unbounded.Text_IO;
    use Interface_P;
-
-   procedure Load_Property (Name   : out Unbounded_String;
-                            Value  : out Unbounded_String;
-                            File   : in File_Type;
-                            Prefix : in String := "";
-                            Strip  : in Boolean := False);
 
    function Exists (Self : in Manager'Class;
                     Name : in String) return Boolean is
@@ -111,7 +105,7 @@ package body Util.Properties is
          Self.Impl.Count := 1;
       elsif Self.Impl.Count > 1 then
          declare
-            Old : constant Interface_P.Manager_Access := Self.Impl;
+            Old : Interface_P.Manager_Access := Self.Impl;
          begin
             Self.Impl := Create_Copy (Self.Impl.all);
             Self.Impl.Count := 1;
@@ -233,13 +227,9 @@ package body Util.Properties is
       end if;
    end Set_Property_Implementation;
 
-   procedure Load_Property (Name   : out Unbounded_String;
-                            Value  : out Unbounded_String;
-                            File   : in File_Type;
-                            Prefix : in String := "";
-                            Strip  : in Boolean := False) is
-      pragma Unreferenced (Strip);
-
+   procedure Load_Property (Name  : out Unbounded_String;
+                            Value : out Unbounded_String;
+                            File  : in File_Type) is
       Line : Unbounded_String;
       Pos  : Natural;
       Len  : Natural;
@@ -249,16 +239,10 @@ package body Util.Properties is
          Len  := Length (Line);
          if Len /= 0 and then Element (Line, 1) /= '#' then
             Pos := Index (Line, "=");
-            if Pos > 0 and then Prefix'Length > 0 and then Index (Line, Prefix) = 1 then
-               Name  := Unbounded_Slice (Line, Prefix'Length + 1, Pos - 1);
-               Value := Tail (Line, Len - Pos);
-               return;
-
-            elsif Pos > 0 and Prefix'Length = 0 then
+            if Pos > 0 then
                Name  := Head (Line, Pos - 1);
                Value := Tail (Line, Len - Pos);
                return;
-
             end if;
          end if;
       end loop;
@@ -266,14 +250,12 @@ package body Util.Properties is
       Value := Null_Unbounded_String;
    end Load_Property;
 
-   procedure Load_Properties (Self   : in out Manager'Class;
-                              File   : in File_Type;
-                              Prefix : in String := "";
-                              Strip  : in Boolean := False) is
+   procedure Load_Properties (Self : in out Manager'Class;
+                              File : in File_Type) is
       Name, Value : Unbounded_String;
    begin
       loop
-         Load_Property (Name, Value, File, Prefix, Strip);
+         Load_Property (Name, Value, File);
          exit when Name = Null_Unbounded_String;
          Set (Self, To_String (Name), To_String (Value));
       end loop;
@@ -283,26 +265,22 @@ package body Util.Properties is
          return;
    end Load_Properties;
 
-   procedure Load_Properties (Self   : in out Manager'Class;
-                              Path   : in String;
-                              Prefix : in String := "";
-                              Strip  : in Boolean := False) is
+   procedure Load_Properties (Self : in out Manager'Class;
+                              Path : in String) is
       F : File_Type;
    begin
       Open (F, In_File, Path);
-      Load_Properties (Self, F, Prefix, Strip);
+      Load_Properties (Self, F);
       Close (F);
    end Load_Properties;
 
    --  ------------------------------
    --  Copy the properties from FROM which start with a given prefix.
-   --  If the prefix is empty, all properties are copied.  When <b>Strip</b> is True,
-   --  the prefix part is removed from the property name.
+   --  If the prefix is empty, all properties are copied.
    --  ------------------------------
-   procedure Copy (Self   : in out Manager'Class;
-                   From   : in Manager'Class;
-                   Prefix : in String := "";
-                   Strip  : in Boolean := False) is
+   procedure Copy (Self : in out Manager'Class;
+                   From : in Manager'Class;
+                   Prefix : in String := "") is
       Names : constant Name_Array := From.Get_Names;
    begin
       for I in Names'Range loop
@@ -310,15 +288,7 @@ package body Util.Properties is
             Name : Unbounded_String renames Names (I);
          begin
             if Prefix'Length = 0 or else Index (Name, Prefix) = 1 then
-               if Strip and Prefix'Length > 0 then
-                  declare
-                     S : constant String := Slice (Name, Prefix'Length + 1, Length (Name));
-                  begin
-                     Self.Set (+(S), From.Get (Name));
-                  end;
-               else
-                  Self.Set (Name, From.Get (Name));
-               end if;
+               Self.Set (Name, From.Get (Name));
             end if;
          end;
       end loop;

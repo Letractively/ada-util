@@ -36,10 +36,6 @@ package Util.Log.Loggers is
    --  Create a logger with the given name.
    function Create (Name : in String) return Logger;
 
-   --  Initialize the logger and create a logger with the given name.
-   function Create (Name   : in String;
-                    Config : in String) return Logger;
-
    --  Change the log level
    procedure Set_Level (Log   : in out Logger;
                         Level : in Level_Type);
@@ -61,18 +57,6 @@ package Util.Log.Loggers is
                     Message : in String;
                     Arg1    : in String := "";
                     Arg2    : in String := "";
-                    Arg3    : in String := "");
-
-   procedure Debug (Log     : in Logger'Class;
-                    Message : in String;
-                    Arg1    : in Unbounded_String;
-                    Arg2    : in String := "";
-                    Arg3    : in String := "");
-
-   procedure Debug (Log     : in Logger'Class;
-                    Message : in String;
-                    Arg1    : in Unbounded_String;
-                    Arg2    : in Unbounded_String;
                     Arg3    : in String := "");
 
    procedure Info (Log     : in Logger'Class;
