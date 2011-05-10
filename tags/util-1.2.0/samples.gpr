@@ -1,0 +1,25 @@
+with "config";
+with "util";
+
+project Samples is
+
+   Mains := ("measures.adb", "properties.adb", "log.adb",
+   "bundles.adb", "escape.adb", "encodes.adb", "json.adb",
+   "multipro.adb", "multipro_refs.adb", "xmlrd.adb");
+
+   for Main use Mains;
+
+   for Source_Dirs use ("samples");
+
+   for Object_Dir use "./" & Config'Object_Dir & "/obj";
+   for Exec_Dir use "./" & Config'Exec_Dir & "/bin";
+
+   package Binder renames Config.Binder;
+
+   package Builder renames Config.Builder;
+
+   package Compiler renames Config.Compiler;
+
+   package Linker renames Config.Linker;
+
+end Samples;

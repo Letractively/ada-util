@@ -1,0 +1,131 @@
+# You may edit this makefile as long as you keep these original 
+# target names defined.
+MODE=distrib
+GNATMAKE=gnatmake -XMODE=${MODE} -XPROCESSORS=4
+GNATCLEAN=gnatclean
+GPRPATH=util.gpr
+TESTUTIL_GPRPATH=testutil.gpr
+
+distdir=ada-util-@UTIL_VERSION@
+
+DIST_FILE=ada-util-@UTIL_VERSION@.tar.gz
+
+XML_SRC_DIR=@UTIL_XML_DIR@
+ASM_SRC_DIR=@UTIL_ASM_DIR@
+
+MKDIR=mkdir
+CP=cp
+
+srcdir = .
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+top_builddir = .
+
+includedir=${prefix}/share/ada/adainclude
+projectdir=${prefix}/share/ada/adainclude
+libdir=${prefix}/lib
+alidir=${prefix}/share/ada/adainclude
+
+# Build executables for all mains defined by the project.
+build:
+	$(GNATMAKE) -p -P "$(GPRPATH)"
+	$(GNATMAKE) -p -P "$(TESTUTIL_GPRPATH)"
+
+# Build and run the unit tests
+test:	build
+	$(GNATMAKE) -p -Ptests
+	bin/util_harness
+
+# Not intended for manual invocation.
+# Invoked if automatic builds are enabled.
+# Analyzes only on those sources that have changed.
+# Does not build executables.
+autobuild:
+	$(GNATMAKE) -gnatc -c -k  -P "$(GPRPATH)"
+
+# Clean the root project of all build products.
+clean:	clean_test
+	$(GNATCLEAN) -q -P "$(GPRPATH)"
+
+# Clean the files produced by the unit tests
+clean_test:
+	rm -f test?.log test.log test-stream.txt test-write.txt util-tests.xml
+
+# Clean root project and all imported projects too.
+clean_tree:
+	$(GNATCLEAN) -P "$(GPRPATH)" -r
+
+# Check *all* sources for errors, even those not changed.
+# Does not build executables.
+analyze:
+	$(GNATMAKE) -f  -gnatc -c -k  -P "$(GPRPATH)"
+
+# Clean, then build executables for all mains defined by the project.
+rebuild: clean build
+
+# Update src/util.ads with the latest SVN revision number.
+version:
+	gnatprep `svn info | grep '^[UR][eR][Lv]' | sed -e 's,URL: \(.*\),-DURL="\1",' -e 's,Revision: ,-DREVISION=,'` \
+		  src/util.gpb src/util.ads
+
+# Files to package in source distribution
+DISTFILES=README LICENSE.txt NOTICE.txt NEWS CHANGES ChangeLog config.guess configure config.sub \
+configure.in Makefile.in install-sh \
+util.gpr.in testutil.gpr tests.gpr samples.gpr config.gpr \
+src samples regtests testutil \
+bin obj lib distrib
+
+dist:
+	-rm -rf $(distdir)
+	mkdir $(distdir)
+	-chmod 777 $(distdir)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+	-rm -f $(distdir)/bin/*
+	-rm -f $(distdir)/obj/*
+	tar --exclude=.svn --exclude="*~" --exclude="*.o" --exclude="*.ali" \
+	    --exclude="*.log" --exclude="*.a" \
+	    -cvzf $(DIST_FILE) $(distdir)
+
+
+install:
+	$(MKDIR) -p ${includedir}/util
+	$(MKDIR) -p ${includedir}/testutil
+	$(MKDIR) -p ${projectdir}/
+	${MKDIR} -p ${alidir}/testutil
+	${MKDIR} -p ${alidir}/util
+	${CP} testutil/*.ad[bs] ${includedir}/testutil
+	${CP} src/*.ad[bs] ${includedir}/util
+	if test T${XML_SRC_DIR} != T ; then \
+	   ${CP} ${XML_SRC_DIR}/*.ad[bs] ${includedir}/util ; \
+	fi
+	if test T${ASM_SRC_DIR} != T ; then \
+	   ${CP} ${ASM_SRC_DIR}/*.ad[bs] ${includedir}/util ; \
+	fi
+	${CP} distrib/util.gpr ${projectdir}/util.gpr
+	${CP} distrib/testutil.gpr ${projectdir}/testutil.gpr
+	${CP} lib/testutil/*.ali ${alidir}/testutil
+	${CP} lib/util/*.ali ${alidir}/util
+	${CP} lib/util/libadautil.a ${libdir}/
+	${CP} lib/testutil/libadatestutil.a ${libdir}/
+
+uninstall:
+	rm -rf ${includedir}/testutil
+	rm -rf ${includedir}/util
+	rm -f ${libdir}/libadautil.a
+	rm -f ${libdir}/libadatestutil.a
+	rm -f ${projectdir}/testutil.gpr
+	rm -f ${projectdir}/util.gpr
