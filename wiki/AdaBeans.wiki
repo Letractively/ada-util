@@ -5,11 +5,41 @@
 
 A [http://en.wikipedia.org/wiki/JavaBean Java Bean] is an object that allows to access its propertirs through getters and setters.
 
-An Ada Bean has some similarities with the Java Bean as it tries expose
-an object through a set of common interfaces.
+An Ada Bean has some similarities with the Java Bean as it tries to expose
+an object through a set of common interfaces.  The Ada Bean framework consists of 
 
+  * An `Object` concrete type allows to hold any data type such as boolean, integer, floats, strings, dates and Ada bean objects.
+  * A `Bean` interface exposes a `Get_Value` and `Set_Value` operation through which the object properties can be obtained and modified.
+  * A `Method_Bean` interface exposes a method that gives access to the methods provided by the Ada Bean.
 
-= Getters =
+= Bean Declaration =
+
+The Ada Bean object has to implement the *Readonly_Bean* or the
+*Bean* interface.
+
+The getter and setter will identify the property to get or set through a name. The value is represented by an Object type that can hold several data types (boolean, integer, floats, strings, dates, ...). The getter looks for the name and returns the corresponding value in an Object record. Several To_Object functions helps in creating the result value.
+
+{{{
+with Util.Beans.Basic;
+with Util.Beans.Objects;
+...
+
+   type Compute_Bean is new Util.Beans.Basic.Bean with record
+      Height : My_Float := -1.0;
+      Radius : My_Float := -1.0;
+   end record;
+
+   --  Get the value identified by the name.
+   overriding
+   function Get_Value (From : Compute_Bean;
+                       Name : String) return Util.Beans.Objects.Object;
+
+   --  Set the value identified by the name.
+   overriding
+   procedure Set_Value (From  : in out Compute_Bean;
+                        Name  : in String;
+                        Value : in Util.Beans.Objects.Object);
+}}}
 
 
 = Setters =
