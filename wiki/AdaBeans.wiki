@@ -1,0 +1,15 @@
+#summary Ada Beans
+#labels n
+
+= Introduction =
+
+A [http://en.wikipedia.org/wiki/JavaBean Java Bean] is an object that allows to access its propertirs through getters and setters.
+
+An Ada Bean has some similarities with the Java Bean as it tries expose
+an object through a set of common interfaces.
+
+
+= Getters =
+
+
+= Setters =
