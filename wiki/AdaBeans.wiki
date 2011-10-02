@@ -21,8 +21,6 @@ The Ada Bean framework consists of:
 The Ada Bean object has to implement the *Readonly_Bean* or the *Bean* interface.
 The former exposes only a getter operation while the later also exposes the setter operation.
 
-The getter and setter will identify the property to get or set through a name. The value is represented by an `Object` type that can hold several data types (boolean, integer, floats, strings, dates, ...). The getter looks for the name and returns the corresponding value in an `Object` record. Several `To_Object` functions helps in creating the result value.
-
 {{{
 with Util.Beans.Basic;
 with Util.Beans.Objects;
@@ -46,4 +44,23 @@ with Util.Beans.Objects;
 }}}
 
 
-= Setters =
+= Bean Implementation =
+
+
+The getter and setter will identify the property to get or set through a name. The value is represented by an `Object` type that can hold several data types (boolean, integer, floats, strings, dates, ...). The getter looks for the name and returns the corresponding value in an `Object` record. Several `To_Object` functions helps in creating the result value.
+
+{{{
+   function Get_Value (From : Compute_Bean;
+                       Name : String) return Util.Beans.Objects.Object is
+   begin
+      if Name = "radius" and From.Radius >= 0.0 then
+         return Util.Beans.Objects.To_Object (Float (From.Radius));
+
+      elsif Name = "height" and From.Height >= 0.0 then
+         return Util.Beans.Objects.To_Object (Float (From.Height));
+
+      else
+         return Util.Beans.Objects.Null_Object;
+      end if;
+   end Get_Value;
+}}}
