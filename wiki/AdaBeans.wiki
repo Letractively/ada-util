@@ -14,7 +14,8 @@ The Ada Bean framework consists of:
   * A `Bean` interface that exposes a `Get_Value` and `Set_Value` operation through which the object properties can be obtained and modified.
   * A `Method_Bean` interface that exposes a set of method bindings that gives access to the methods provided by the Ada Bean object.
 
-
+The Ada Bean framework is the basis for the implementation of
+[http://code.google.com/p/ada-asf/ Ada Server Faces] and [http://code.google.com/p/ada-el/ Ada EL].
 
 = Bean Declaration =
 
