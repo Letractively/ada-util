@@ -87,18 +87,54 @@ is finalized and the `Close` procedure will be called when the file object is fi
 
 The `Pipe_Stream` is a special stream which launches an external process
 and redirects the standard input and standard output of the process.
-The `Pipe_Stream` can be used to write on the process standard input,
-or read the process standard output or both.  First, create the pipe instance:
+The `Pipe_Stream` can be used to write on the process standard input
+or read the process standard output.  It is very close to the `popen` operation provided by the C stdio library.  First, create the pipe instance:
 
 {{{
 with Util.Streams.Pipes;
 ...
-   Pipe : Util.Streams.Pipes.Pipe_Stream;
+   Pipe : aliased Util.Streams.Pipes.Pipe_Stream;
 }}}
 
 The pipe instance can be associated with only one process at a time.
-The process is launched by using the `Open` command.
+The process is launched by using the `Open` command and specifying the
+command to execute as well as the pipe redirection mode.
+
+  * READ to read the process standard output,
+  * WRITE to write on the process standard input,
 
 {{{
-   Pipe.Open ("ls -l", Util.Processes.READ);
+   Command : constant String := "ls -l";
+   ...
+   Pipe.Open (Command, Util.Processes.READ);
+}}}
+
+The `Pipe_Stream` is not buffered.  A buffer can be configured easily as follows:
+
+{{{
+  Buffer : Util.Streams.Buffered.Buffered_Stream;
+  ...
+  Buffer.Initialize (null, Pipe'Unchecked_Access, 1024);
+}}}
+
+And to read the process output, one can use the following:
+
+{{{
+  Content : Ada.Strings.Unbounded.Unbounded_String;
+  ...
+  Buffer.Read (Content);
+}}}
+
+The pipe object should be closed when reading or writing to it is finished.
+By closing the pipe, the caller will wait for the termination of the process.
+The process exit status can be obtained by using the `Get_Exit_Status` function.
+
+{{{
+   Pipe.Close;
+
+   if Pipe.Get_Exit_Status /= 0 then
+      Ada.Text_IO.Put_Line (Command & " exited with status "
+                            & Integer'Image (Pipe.Get_Exit_Status));
+      return;
+   end if;
 }}}
