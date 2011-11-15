@@ -141,3 +141,8 @@ The process exit status can be obtained by using the `Get_Exit_Status` function.
       return;
    end if;
 }}}
+
+The `Pipe_Stream` is a limited type and thus cannot be copied.
+When leaving the scope of the `Pipe_Stream` instance, the application will
+wait for the process to terminate.
+
