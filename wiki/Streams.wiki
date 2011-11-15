@@ -106,7 +106,8 @@ command to execute as well as the pipe redirection mode.
 {{{
    Command : constant String := "ls -l";
    ...
-   Pipe.Open (Command, Util.Processes.READ);
+   Pipe.Open (Command => Command,
+              Mode    => Util.Processes.READ);
 }}}
 
 The `Pipe_Stream` is not buffered.  A buffer can be configured easily as follows:
@@ -114,7 +115,9 @@ The `Pipe_Stream` is not buffered.  A buffer can be configured easily as follows
 {{{
   Buffer : Util.Streams.Buffered.Buffered_Stream;
   ...
-  Buffer.Initialize (null, Pipe'Unchecked_Access, 1024);
+  Buffer.Initialize (Output => null,
+                     Input  => Pipe'Unchecked_Access,
+                     Size   => 1024);
 }}}
 
 And to read the process output, one can use the following:
@@ -122,7 +125,7 @@ And to read the process output, one can use the following:
 {{{
   Content : Ada.Strings.Unbounded.Unbounded_String;
   ...
-  Buffer.Read (Content);
+  Buffer.Read (Into => Content);
 }}}
 
 The pipe object should be closed when reading or writing to it is finished.
