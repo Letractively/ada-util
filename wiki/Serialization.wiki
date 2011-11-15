@@ -1,8 +1,8 @@
-#summary Serialization of data structures in JSON/XML
+#summary Serialization of data structures in CSV/JSON/XML
 = Introduction =
 
 The `Util.Serialize` package provides a customizable
-framework to serialize and de-serialize data structures in JSON and XML.
+framework to serialize and de-serialize data structures in CSV, JSON and XML.
 It is inspired from the Java [http://xstream.codehaus.org/ XStream] library.
 
 = Record Mapping =
@@ -52,7 +52,7 @@ begin
 end Set_Member; 
 }}}
 
-The procedure will be called by the JSON or XML reader when a field
+The procedure will be called by the CSV, JSON or XML reader when a field
 is recognized.
 
 The serialization to JSON or XML needs a function that returns the field
@@ -136,6 +136,14 @@ Reader : Util.Serialize.IO.XML.Parser;
    Reader.Add_Mapping ("address", Address_Mapping'Access);
 }}}
 
+For a CSV de-serialize, we just have to use another parser:
+
+{{{
+Reader : Util.Serialize.IO.CSV.Parser;
+...
+   Reader.Add_Mapping ("", Address_Mapping'Access);
+}}}
+
 The next step is to indicate the object that the de-serialization will write into.  For this, the generic package provided the `!Set_Context` procedure
 to register the root object that will be
 filled according to the mapping.
@@ -146,7 +154,35 @@ Addr : aliased Address;
   Address_Mapper.Set_Context (Reader, Addr'Access);
 }}}
 
-The `Parse` procedure parses a file using a JSON or XML parser.  It uses the mappings registered by `Add_Mapping` and fills the objects registered by `Set_Context`.  When the parsing is successful, the `Addr` object will hold the values.
+The `Parse` procedure parses a file using a CSV, JSON or XML parser.  It uses the mappings registered by `Add_Mapping` and fills the objects registered by `Set_Context`.  When the parsing is successful, the `Addr` object will hold the values.
 {{{
   Reader.Parse (File);
+}}}
+
+== Parser Specificities ==
+
+=== XML ===
+
+XML has attributes and entities both of them being associated with a name.
+For the mapping, to specify that a value is stored in an XML attribute, the
+name must be prefixed by the *@* sign (this is very close to an XPath expression).  For example if the `city` XML entity has an `id` attribute,
+we could map it to a field `FIELD_CITY_ID` as follows:
+
+{{{
+Address_Mapping.Add_Mapping ("city/@id", FIELD_CITY_ID);
+}}}
+
+=== CSV ===
+
+A CSV file is flat and each row is assumed to contain the same kind of entities.  By default the CSV file contains as first row a column header which is used
+by the de-serialization to make the column field association.  The mapping
+defined through `Add_Mapping` uses the column header name to indicate
+which column correspond to which field.
+
+If a CSV file does not contain a column header, the mapping must be created
+by using the default column header names (Ex: A, B, C, ..., AA, AB, ...).
+The parser must be told about this lack of column header:
+
+{{{
+   Parser.Set_Default_Headers
 }}}
