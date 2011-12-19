@@ -1,0 +1,33 @@
+#summary Process creation and pipes
+
+= Introduction =
+
+An external process can be launched and controlled by the `Process` type. 
+It allows to read the process standard output as well as write on the process standard input.
+
+
+
+= Launching a process =
+
+A process can be launched and controlled by the limited type
+`Process`.  First, let's declare the process instance:
+
+{{{
+with Util.Processes;
+...
+   Proc : Util.Processes.Process;
+}}}
+
+The process is launched by the `Spawn` procedure.  The command and its arguments to execute is passed as a string to the procedure.
+
+{{{
+   Proc.Spawn ("gnatmake --version");
+}}}
+
+Once the process is spawned, the procedure returns: it does not wait for the process to terminate.  We have to use the `Wait` procedure:
+
+{{{
+   Proc.Wait;
+}}}
+
+Then, the process exit status is obtained by calling `Get_Exit_Status`.
