@@ -73,3 +73,7 @@ By closing the pipe, we wait for the process to terminate.
 {{{
    Pipe.Close;
 }}}
+
+= References =
+
+[http://code.google.com/p/ada-util/source/browse/trunk/src/util-processes.ads util-processes.ads]
