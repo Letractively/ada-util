@@ -93,7 +93,7 @@ package Address_Mapper is
 }}}
 
 *Note*: a bug in the gcc compiler does not allow to specify the
-Get_Member function in the generic package.  As a work-arround, the
+*Get_Member* function in the generic package.  As a work-arround, the
 function must be associated with the mapping using the *Bind* procedure.
 
 == Mapping Definition ==
