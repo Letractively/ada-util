@@ -184,5 +184,5 @@ by using the default column header names (Ex: A, B, C, ..., AA, AB, ...).
 The parser must be told about this lack of column header:
 
 {{{
-   Parser.Set_Default_Headers
+   Parser.Set_Default_Headers;
 }}}
