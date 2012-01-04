@@ -77,3 +77,5 @@ By closing the pipe, we wait for the process to terminate.
 = References =
 
 [http://code.google.com/p/ada-util/source/browse/trunk/src/util-processes.ads util-processes.ads]
+
+[http://code.google.com/p/ada-util/source/browse/trunk/samples/popen.adb popen.adb]
