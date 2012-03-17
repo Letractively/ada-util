@@ -79,3 +79,5 @@ By closing the pipe, we wait for the process to terminate.
 [http://code.google.com/p/ada-util/source/browse/trunk/src/util-processes.ads util-processes.ads]
 
 [http://code.google.com/p/ada-util/source/browse/trunk/samples/popen.adb popen.adb]
+
+[http://blog.vacs.fr/index.php?post/2012/03/16/Process-creation-in-Java-and-Ada Process creation in Java and Ada]
