@@ -1,0 +1,33 @@
+Version 1.5     - May 2012
+  - Added concurrent fifo queues and arrays
+  - Changed Objects.Maps to use a String instead of an Unbounded_String as the key
+  - Support for shared or static build configuration
+  - Implement input/output/error redirection to a file for process launch
+  - Added a string tokenizer
+
+Version 1.4     - Jan 2012
+  - Support for localized date format
+  - Support for process creation and pipe streams (on Unix and Windows)
+  - Support for CSV in the serialization framework
+  - Integrate Ahven 2.1 for the unit tests (activate with --enable-ahven)
+  - Add a tool to generate perfect hash function
+
+Version 1.3     - Sep 2011
+  - Added concurrent object pools
+  - Support XmlAda 4.1 (GNAT 2011)
+  - Better support to report errors in the serialization framework
+  - Optimize Util.Log implementation
+
+Version 1.2	- May 2011
+  - Integrates the Ada EL beans framework
+  - Added encoders (base16, base64, SHA1, HMAC-SHA1)
+  - Added serialization framework (JSON, XML) - EXPERIMENTAL
+  - Added reference counters
+
+Version 1.1	- Aug 2010
+  - Added text transformations
+  - Added Locales
+  - Added property bundles
+
+Version 1.0	- Jul 2010
+  - Supports logs, properties, concurrent counters

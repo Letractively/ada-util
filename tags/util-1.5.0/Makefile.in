@@ -1,0 +1,224 @@
+## The type of library we want to build. Possible values:
+##   relocatable
+##   static
+LIBRARY_TYPE=static
+
+# You may edit this makefile as long as you keep these original 
+# target names defined.
+MODE=distrib
+GNATMAKE=@GNATMAKE@
+GNATCLEAN=gnatclean
+SVN=svn
+INSTALL=@INSTALL@
+
+GPRPATH=util.gpr
+TESTUTIL_GPRPATH=testutil.gpr
+
+BUILDS_SHARED=@BUILDS_SHARED@
+
+version=@UTIL_VERSION@
+
+distdir=ada-util-@UTIL_VERSION@
+
+DIST_FILE=ada-util-@UTIL_VERSION@.tar.gz
+
+XML_SRC_DIR=@UTIL_XML_DIR@
+ASM_SRC_DIR=@UTIL_ASM_DIR@
+AUNIT_SRC_DIR=@UTIL_AUNIT_DIR@
+AHVEN_SRC_DIR=@UTIL_AHVEN_DIR@
+AHVEN_SRC_OS_DIR=@UTIL_AHVEN_OS_DIR@
+
+HAVE_XML=@UTIL_HAVE_XML@
+
+LN_S=@LN_S@
+MKDIR=mkdir
+CP=cp
+LN=ln -s
+
+ifeq (${OS},Windows_NT)
+LIBEXT=dll
+LIBVER=dll
+else
+LIBEXT=so
+LIBVER=so.$(version)
+endif
+
+srcdir = .
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+top_builddir = .
+
+includedir=${prefix}/share/ada/adainclude
+projectdir=${prefix}/share/ada/adainclude
+bindir=${prefix}/bin
+libdir=${prefix}/lib
+alidir=${libdir}/ada/adalib/
+
+MAKE_ARGS=-XMODE=${MODE} -XLIBRARY_TYPE=${LIBRARY_TYPE} -XPROCESSORS=4
+
+ifeq (${BUILDS_SHARED},yes)
+all:     static shared
+install: install_static install_shared
+else
+all:     static
+install: install_static
+endif
+
+# Build executables for all mains defined by the project.
+build:
+	$(GNATMAKE) -m -p -P"$(GPRPATH)" $(MAKE_ARGS)
+	$(GNATMAKE) -m -p -P"$(TESTUTIL_GPRPATH)" $(MAKE_ARGS)
+
+static:
+	$(MAKE) LIBRARY_TYPE=static build
+
+shared:
+	$(MAKE) LIBRARY_TYPE=relocatable build
+
+# Build and run the unit tests
+test:	build regtests/util-testsuite.adb
+	$(GNATMAKE) -p -Ptests
+	bin/util_harness -xml util-aunit.xml
+
+regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile
+	gnatprep -DHAVE_XML=$(HAVE_XML) regtests/util-testsuite.gpb $@
+
+# Not intended for manual invocation.
+# Invoked if automatic builds are enabled.
+# Analyzes only on those sources that have changed.
+# Does not build executables.
+autobuild:
+	$(GNATMAKE) -gnatc -c -k  -P "$(GPRPATH)"
+
+# Clean the root project of all build products.
+clean:	clean_test
+	-$(GNATCLEAN) -q -P "$(GPRPATH)" -XLIBRARY_TYPE=static
+	-$(GNATCLEAN) -q -P "$(GPRPATH)" -XLIBRARY_TYPE=relocatable
+	-$(GNATCLEAN) -q -Ptestutil -XLIBRARY_TYPE=static
+	-$(GNATCLEAN) -q -Ptestutil -XLIBRARY_TYPE=relocatable
+	-$(GNATCLEAN) -q -Ptests
+	-$(GNATCLEAN) -q -Psamples
+	-rm -f lib/util/*.a lib/util/*.$(DLLEXT)
+	-rm -f lib/testutil/*.a lib/testutil/*.$(DLLEXT)
+
+# Clean the files produced by the unit tests
+clean_test:
+	rm -f test?.log test.log test-stream.txt test-write.txt util-tests.xml
+	rm -rf regtests/result
+
+# Clean root project and all imported projects too.
+clean_tree:
+	$(GNATCLEAN) -P "$(GPRPATH)" -r
+
+# Check *all* sources for errors, even those not changed.
+# Does not build executables.
+analyze:
+	$(GNATMAKE) -f  -gnatc -c -k  -P "$(GPRPATH)"
+
+# Clean, then build executables for all mains defined by the project.
+rebuild: clean build
+
+# Update src/util.ads with the latest SVN revision number.
+version:
+	gnatprep `svn info | grep '^[UR][eR][Lv]' | sed -e 's,URL: \(.*\),-DURL="\1",' -e 's,Revision: ,-DREVISION=,'` \
+		  src/util.gpb src/util.ads
+
+# Files to package in source distribution
+DISTFILES=README LICENSE.txt LICENSE.Ahven NOTICE.txt NEWS CHANGES ChangeLog \
+config.guess configure config.sub \
+configure.in Makefile.in install-sh \
+util.gpr.in config.gpr.in testutil.gpr.in tests.gpr samples.gpr \
+src samples regtests testutil \
+distrib support bundles
+
+dist:
+	-rm -rf $(distdir)
+	mkdir $(distdir)
+	-chmod 777 $(distdir)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+	mkdir $(distdir)/bin
+	mkdir $(distdir)/obj
+	mkdir $(distdir)/lib
+	tar --exclude=.svn --exclude="*~" --exclude="*.o" --exclude="*.ali" \
+	    --exclude="*.log" --exclude="*.a" \
+	    -cvzf $(DIST_FILE) $(distdir)
+
+install_static:
+	$(MAKE) LIBRARY_TYPE=static install_lib
+
+install_shared:
+	$(MAKE) LIBRARY_TYPE=relocatable install_lib
+
+install_lib:
+	$(MKDIR) -p ${includedir}/util
+	$(MKDIR) -p ${includedir}/testutil
+	$(MKDIR) -p ${projectdir}/
+	${MKDIR} -p ${alidir}/testutil/$(LIBRARY_TYPE)
+	${MKDIR} -p ${alidir}/util/$(LIBRARY_TYPE)
+	${MKDIR} -p ${libdir}
+	${CP} -p testutil/*.ad[bs] ${includedir}/testutil
+	${CP} -p src/*.ad[bs] ${includedir}/util
+	if test T${XML_SRC_DIR} != T ; then \
+	   ${CP} -p ${XML_SRC_DIR}/*.ad[bs] ${includedir}/util ; \
+	fi
+	if test T${ASM_SRC_DIR} != T ; then \
+	   ${CP} -p ${ASM_SRC_DIR}/*.ad[bs] ${includedir}/util ; \
+	fi
+	if test T${AUNIT_SRC_DIR} != T ; then \
+	   ${CP} -p ${AUNIT_SRC_DIR}/*.ad[bs] ${includedir}/testutil ; \
+	fi
+	if test T${AHVEN_SRC_DIR} != T ; then \
+	   ${CP} -p ${AHVEN_SRC_DIR}/*.ad[bs] ${includedir}/testutil ; \
+	   ${CP} -p ${AHVEN_SRC_OS_DIR}/*.ad[bs] ${includedir}/testutil ; \
+	fi
+	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/util.gpr > ${projectdir}/util.gpr
+	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/testutil.gpr > ${projectdir}/testutil.gpr
+	${CP} -p lib/testutil/$(LIBRARY_TYPE)/*.ali ${alidir}/testutil/$(LIBRARY_TYPE)
+	${CP} -p lib/util/$(LIBRARY_TYPE)/*.ali ${alidir}/util/$(LIBRARY_TYPE)
+ifeq ($(LIBRARY_TYPE),static)
+	${CP} -p lib/util/$(LIBRARY_TYPE)/libadautil.a ${libdir}/
+	${CP} -p lib/testutil/$(LIBRARY_TYPE)/libadatestutil.a ${libdir}/
+else
+	${CP} -p lib/util/$(LIBRARY_TYPE)/libadautil.$(LIBVER) ${libdir}/
+	${CP} -p lib/testutil/$(LIBRARY_TYPE)/libadatestutil.$(LIBVER) ${libdir}/
+	cd ${libdir} && \
+	rm -f libadautil.$(LIBEXT) libadatestutil.$(LIBEXT) && \
+	${LN} libadautil.$(LIBVER) libadautil.$(LIBEXT) && \
+	${LN} libadatestutil.$(LIBVER) libadatestutil.$(LIBEXT)
+endif
+
+install-support:
+	$(MKDIR) -p ${bindir}
+	${CP} support/*.sh ${bindir}
+	${CP} support/*.xsl ${bindir}
+
+uninstall:
+	rm -rf ${includedir}/util ${includedir}/testutil
+	rm -rf ${alidir}/util ${alidir}/testutil
+	rm -f ${libdir}/libadautil.a
+	rm -f ${libdir}/libadatestutil.a
+	rm -f ${libdir}/libadautil.so.${version}
+	rm -f ${libdir}/libadatestutil.so.${version}
+	rm -f ${projectdir}/testutil.gpr
+	rm -f ${projectdir}/util.gpr
+
+# prepare before releasing a new version of the package
+# (collect information about changes and SVN repository)
+prepare-release:
+	${SVN} update
+	${SVN} info > CHANGES
+	${SVN} log -v > ChangeLog

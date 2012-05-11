@@ -1,0 +1,250 @@
+dnl Autoconf configure script for Ada Util
+dnl Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012 Stephane Carrez
+dnl Written by Stephane Carrez (Stephane.Carrez@gmail.com)
+dnl
+dnl  Licensed under the Apache License, Version 2.0 (the "License");
+dnl  you may not use this file except in compliance with the License.
+dnl  You may obtain a copy of the License at
+dnl
+dnl     http://www.apache.org/licenses/LICENSE-2.0
+dnl
+dnl  Unless required by applicable law or agreed to in writing, software
+dnl  distributed under the License is distributed on an "AS IS" BASIS,
+dnl  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+dnl  See the License for the specific language governing permissions and
+dnl  limitations under the License.
+dnl 
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(src/util.ads)
+
+AC_CANONICAL_SYSTEM
+dnl AM_MAINTAINER_MODE
+
+# Current release settings
+UTIL_MAJOR_VERSION=1
+UTIL_MINOR_VERSION=5
+UTIL_MICRO_VERSION=0
+UTIL_VERSION=$UTIL_MAJOR_VERSION.$UTIL_MINOR_VERSION.$UTIL_MICRO_VERSION
+
+AC_CHECK_PROGS(GNATMAKE, gnatmake, "")
+
+# checking for local tools
+AC_PROG_CC
+AC_PROG_MAKE_SET
+AC_PROG_INSTALL
+AC_PROG_LN_S
+
+# Set the version number of Ada Util
+AC_SUBST(UTIL_VERSION)
+AC_SUBST(UTIL_MAJOR_VERSION)
+AC_SUBST(UTIL_MINOR_VERSION)
+AC_SUBST(UTIL_MICRO_VERSION)
+
+EXEC_PREFIX="$prefix"
+AC_SUBST(EXEC_PREFIX)
+
+UTIL_LIBDIR="lib"
+AC_SUBST(UTIL_LIBDIR)
+
+
+AC_MSG_CHECKING([specific operating system sources])
+case "${target_os}" in
+     linux|linux-*|solaris*|sysv-*)
+	src_os='src/os-linux'
+	;;
+
+     netbsdelf*)
+	src_os='src/os-linux'
+	;;
+
+     macos*)
+	src_os='src/os-linux'
+	;;
+
+     mingw32*|cygwin*)
+	src_os='src/os-win32'
+	;;
+
+     *)
+	src_os='src/os-none'
+	;;
+esac
+AC_MSG_RESULT(using $src_os)
+UTIL_OS_DIR=$src_os
+AC_SUBST(UTIL_OS_DIR)
+
+AC_MSG_CHECKING([specific processor support])
+case "${target}" in
+  ## Intel 386 machines where we don't care about the manufacturer
+  i[[34567]]86-*-* | x86_* | x86-*)
+    src_asm='src/asm-x86'
+    ;;
+
+  *)
+    src_asm='src/asm-none'
+    ;;
+
+esac
+AC_MSG_RESULT(using $src_asm)
+UTIL_ASM_DIR="$src_asm"
+AC_SUBST(UTIL_ASM_DIR)
+
+##########################################
+# XMLAda library
+##########################################
+
+ac_xml_ada=xmlada-config
+AC_MSG_CHECKING([xmlada library])
+AC_ARG_WITH(xml,
+AS_HELP_STRING([--with-xmlada=], [Enable XML serialization]),
+[
+  ac_xml_ada=${withval}/xmlada-config
+  WITH_XML_ADA="with \"${withval}\";";
+  UTIL_XML_DIR='src/xml';
+  UTIL_HAVE_XML='yes';
+],
+[
+  WITH_XML_ADA='';
+  UTIL_XML_DIR='src';
+  UTIL_HAVE_XML='no';
+])
+
+ac_xml_version=`$ac_xml_ada --version 2>/dev/null | sed -e 's, ,-,g'`
+case $ac_xml_version in
+  XmlAda-3.2*)
+      AC_MSG_RESULT($ac_xml_version)
+      WITH_XML_ADA="with \"xmlada\";";
+      UTIL_XML_DIR='src/xml';
+      UTIL_XML_VERSION='3';
+      UTIL_HAVE_XML='yes';
+      ;;
+
+  XmlAda-4.*)
+      AC_MSG_RESULT($ac_xml_version)
+      WITH_XML_ADA="with \"xmlada\";";
+      UTIL_XML_DIR='src/xml';
+      UTIL_XML_VERSION='4';
+      UTIL_HAVE_XML='yes';
+      ;;
+
+  *)
+      AC_MSG_RESULT(no)
+      WITH_XML_ADA='';
+      UTIL_XML_DIR='src';
+      UTIL_XML_VERSION='none';
+      UTIL_HAVE_XML='no';
+      ;;
+
+esac
+
+AC_MSG_RESULT(${WITH_XML})
+AC_SUBST(WITH_XML_ADA)
+AC_SUBST(UTIL_XML_DIR)
+AC_SUBST(UTIL_XML_VERSION)
+AC_SUBST(UTIL_HAVE_XML)
+
+##########################################
+# Check to enable/disable shared library
+##########################################
+
+AC_MSG_CHECKING([library type])
+ac_enable_shared=no
+AC_ARG_ENABLE(shared,
+[  --enable-shared         Enable the shared libraries (disabled)],
+[case "${enableval}" in
+  no|none)  ac_enable_shared=no ;;
+  *)        ac_enable_shared=yes ;;
+esac])dnl
+
+AC_MSG_RESULT(${ac_enable_shared})
+BUILDS_SHARED=$ac_enable_shared
+AC_SUBST(BUILDS_SHARED)
+
+##########################################
+# Check for GNAT traceback in Util.Log.Loggers
+##########################################
+
+AC_MSG_CHECKING([traceback in log exceptions])
+ac_enable_traceback=yes
+AC_ARG_ENABLE(traceback,
+[  --enable-traceback      Enable the symbolic traceback dump in logged exceptions (enabled)],
+[case "${enableval}" in
+  no|none)  ac_enable_traceback=no ;;
+  *)        ac_enable_traceback=yes ;;
+esac])dnl
+
+AC_MSG_RESULT(${ac_enable_traceback})
+UTIL_GNAT_TRACEBACK=$ac_enable_traceback
+AC_SUBST(UTIL_GNAT_TRACEBACK)
+
+##########################################
+# Test framework selection: aunit or ahven
+##########################################
+
+ac_enable_aunit=yes
+
+ac_enable_ahven=no
+AC_ARG_ENABLE(ahven,
+[  --enable-ahven          Enable internal Ahven support for testutil library and Ada util unit tests (disabled)],
+[case "${enableval}" in
+  no|none)  ac_enable_ahven= ;;
+  *)        ac_enable_ahven=yes
+            ac_enable_aunit=no ;;
+esac])dnl
+
+AC_ARG_ENABLE(aunit,
+[  --enable-aunit          Enable AUnit support for testutil library and Ada util unit tests (enabled)],
+[case "${enableval}" in
+  no|none)  ac_enable_aunit=no ;;
+  *)        ac_enable_aunit=yes ;;
+esac])dnl
+
+AC_MSG_CHECKING(whether AUnit support is enabled)
+AC_MSG_RESULT($ac_enable_aunit)
+AC_MSG_CHECKING(whether Ahven internal support is enabled)
+AC_MSG_RESULT($ac_enable_ahven)
+
+if test x$ac_enable_ahven = 'xyes' -a x$ac_enable_aunit = 'xyes'; then
+   AC_MSG_ERROR(Both Ahven and AUnit testing framework are selected.  Please, choose one of them.)
+fi
+
+UTIL_XUNIT_DIR=
+UTIL_AUNIT_DIR=
+UTIL_AHVEN_DIR=
+WITH_AUNIT=
+
+if test x$ac_enable_aunit = 'xyes'; then
+  UTIL_AUNIT_DIR=testutil/aunit
+  UTIL_XUNIT_DIR='"testutil/aunit"'
+  WITH_AUNIT="with \"aunit\";"
+fi
+if test x$ac_enable_ahven = 'xyes'; then
+  UTIL_AHVEN_DIR=testutil/ahven
+  case "${target_os}" in
+     linux|linux-*|solaris*|sysv-*)
+        UTIL_XUNIT_DIR='"testutil/ahven", "testutil/ahven/unix"'
+	UTIL_AHVEN_OS_DIR="testutil/ahven/unix"
+	;;
+
+     mingw32*|cygwin*)
+        UTIL_XUNIT_DIR='"testutil/ahven", "testutil/ahven/windows"'
+	UTIL_AHVEN_OS_DIR="testutil/ahven/windows"
+	;;
+
+     *)
+        UTIL_XUNIT_DIR='"testutil/ahven", "testutil/ahven/unix"'
+	UTIL_AHVEN_OS_DIR="testutil/ahven/unix"
+	;;
+  esac
+fi
+
+AC_SUBST(WITH_AUNIT)
+AC_SUBST(UTIL_AUNIT_DIR)
+AC_SUBST(UTIL_AHVEN_DIR)
+AC_SUBST(UTIL_AHVEN_OS_DIR)
+AC_SUBST(UTIL_XUNIT_DIR)
+
+AC_OUTPUT(
+Makefile util.gpr config.gpr testutil.gpr distrib/testutil.gpr distrib/util.gpr
+)
