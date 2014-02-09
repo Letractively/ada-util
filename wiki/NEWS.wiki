@@ -8,7 +8,7 @@
   * Added support for shared library loading
   * Support for the creation of Debian packages
   * Update Ahven integration to 2.3
-  * New option -r <test> option for the unit test harness to execute a single test
+  * New option `-r <test>` option for the unit test harness to execute a single test
   * Port on FreeBSD
 
 == Version 1.6.1   - Feb 2013 ==
@@ -20,7 +20,7 @@
   * New operations To_JSON and From_JSON for easy object map serialization
   * Added a listeners to help implementing the observer/listener design patterns
   * Added support for wildcard mapping in serializaton framework
-  * New option -d <dir> for the unit test harness to change the working directory
+  * New option `-d <dir>` for the unit test harness to change the working directory
 
 == Version 1.5     - May 2012 ==
   * Added concurrent fifo queues and arrays
